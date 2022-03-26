@@ -4,6 +4,13 @@
 #include "string"
 
 
+
+bool isZero(double value)
+{
+    return ((value > -0.000001) & (value < 0.000001));
+}
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -19,7 +26,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_task1_pushButton_solve_clicked()
 {
-    double_t answer;
+    double answer;
 
     if (ui->task1_ensert_a->value() == 0)
     {
@@ -31,6 +38,9 @@ void MainWindow::on_task1_pushButton_solve_clicked()
         else
         {
             answer = 0 - ui->task1_ensert_c->value() / ui->task1_ensert_b->value();
+
+            if(isZero(answer))  // приравниваю слишком маленькие значения к нулю, чтобы не было в выводе -0.000000
+                answer = 0;
 
             ui->task1_answer_x1->setText(std::to_string(answer).c_str());
             ui->task1_answer_x2->setText("-");
@@ -49,15 +59,26 @@ void MainWindow::on_task1_pushButton_solve_clicked()
         {
             answer = (0 - ui->task1_ensert_b->value()) / (2 * ui->task1_ensert_a->value()); // не знаю как эфективнее менять знак у числа ( 0-value или value*(-1) )
 
+            if(isZero(answer))
+                answer = 0;
+
             ui->task1_answer_x1->setText(std::to_string(answer).c_str());
             ui->task1_answer_x2->setText("-");
         }
         else if ( D > 0 )
         {
-            answer = (static_cast<int>(qSqrt(D)) - ui->task1_ensert_b->value() ) / (2 * ui->task1_ensert_a->value()); // каст в int для того, чтобы не было отрицательного нуля в ответе
+            answer = (qSqrt(D) - ui->task1_ensert_b->value() ) / (2 * ui->task1_ensert_a->value()); // каст в int для того, чтобы не было отрицательного нуля в ответе
+
+            if(isZero(answer))
+                answer = 0;
+
             ui->task1_answer_x1->setText(std::to_string(answer).c_str());
 
-            answer = (0 - ui->task1_ensert_b->value() - static_cast<int>(qSqrt(D))) / (2 * ui->task1_ensert_a->value());
+            answer = (0 - ui->task1_ensert_b->value() - qSqrt(D)) / (2 * ui->task1_ensert_a->value());
+
+            if(isZero(answer))
+                answer = 0;
+
             ui->task1_answer_x2->setText(std::to_string(answer).c_str());
         }
     }
