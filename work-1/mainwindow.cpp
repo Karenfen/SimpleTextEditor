@@ -11,6 +11,8 @@ bool isZero(double value)
 }
 
 
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -23,6 +25,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+// ==================================================
 
 void MainWindow::on_task1_pushButton_solve_clicked()
 {
@@ -94,6 +97,7 @@ void MainWindow::on_task1_pushButton_clear_clicked()
     ui->task1_answer_x2->clear();
 }
 
+// ==================================================
 
 void MainWindow::on_task2_pushButton_clear_clicked()
 {
@@ -123,5 +127,37 @@ void MainWindow::on_task2_pushButton_solve_clicked()
     c = qSqrt(qPow(a, 2) + qPow(b, 2) - 2 * a * b * qCos(y));
 
     ui->task2_lineEdit_answer->setText(std::to_string(c).c_str());
+}
+
+// ==================================================
+
+void MainWindow::on_task3_pushButton_ensertHTML_clicked()
+{
+    ui->task3_plainTextEdit2->appendHtml("<font color='red'>Hello</font>");
+}
+
+
+void MainWindow::on_task3_pushButton_clearT2_clicked()
+{
+    ui->task3_plainTextEdit2->clear();
+}
+
+
+void MainWindow::on_task3_pushButton_replace_clicked()
+{
+    ui->task3_plainTextEdit2->clear();
+    ui->task3_plainTextEdit2->appendPlainText(ui->task3_plainTextEdit1->toPlainText());
+}
+
+
+void MainWindow::on_task3_pushButton_add_clicked()
+{
+    ui->task3_plainTextEdit2->appendPlainText(ui->task3_plainTextEdit1->toPlainText());
+}
+
+
+void MainWindow::on_task3_pushButton_clearT1_clicked()
+{
+     ui->task3_plainTextEdit1->clear();
 }
 

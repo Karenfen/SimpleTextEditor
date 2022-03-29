@@ -26,6 +26,16 @@ private slots:
 
     void on_task2_pushButton_solve_clicked();
 
+    void on_task3_pushButton_ensertHTML_clicked();
+
+    void on_task3_pushButton_clearT2_clicked();
+
+    void on_task3_pushButton_replace_clicked();
+
+    void on_task3_pushButton_add_clicked();
+
+    void on_task3_pushButton_clearT1_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
