@@ -1,0 +1,35 @@
+ QFile()
+ QFile(const QString &name)
+ QFile(QObject *parent)
+ QFile(const QString &name, QObject *parent)
+ virtual ~QFile()
+ bool copy(const QString &newName)
+ bool exists() const
+ bool link(const QString &linkName)
+ bool open(FILE *fh, QIODevice::OpenMode mode, QFileDevice::FileHandleFlags handleFlags = DontCloseHandle)
+ bool open(int fd, QIODevice::OpenMode mode, QFileDevice::FileHandleFlags handleFlags = DontCloseHandle)
+ bool remove()
+ bool rename(const QString &newName)
+ void setFileName(const QString &name)
+ QString symLinkTarget() const
+
+ virtual QString fileName() const override
+ virtual bool open(QIODevice::OpenMode mode) override
+ virtual QFileDevice::Permissions permissions() const override
+ virtual bool resize(qint64 sz) override
+ virtual bool setPermissions(QFileDevice::Permissions permissions) override
+ virtual qint64 size() const override
+
+ bool copy(const QString &fileName, const QString &newName)
+ QString decodeName(const QByteArray &localFileName)
+ QString decodeName(const char *localFileName)
+ QByteArray encodeName(const QString &fileName)
+ bool exists(const QString &fileName)
+ bool link(const QString &fileName, const QString &linkName)
+ QFileDevice::Permissions permissions(const QString &fileName)
+ bool remove(const QString &fileName)
+ bool rename(const QString &oldName, const QString &newName)
+ bool resize(const QString &fileName, qint64 sz)
+ bool setPermissions(const QString &fileName, QFileDevice::Permissions permissions)
+ const QMetaObject staticMetaObject
+ QString symLinkTarget(const QString &fileName)

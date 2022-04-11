@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/"/>
+    <qresource prefix="/images">
+        <file>bg.jpg</file>
+        <file>icon.png</file>
+        <file>icon2.png</file>
+    </qresource>
+    <qresource prefix="/docs">
+        <file>help.txt</file>
+    </qresource>
+</RCC>
