@@ -31,6 +31,8 @@ private slots:
     void on_pushButton_quickeSave_clicked();
     void on_pushButton_close_clicked();
 
+    void on_pushButton_open_read_only_clicked();
+
 private:
 
     Ui::MainWindow *ui;

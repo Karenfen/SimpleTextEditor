@@ -76,6 +76,13 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButton_open_read_only">
+         <property name="text">
+          <string>открыть для чтения</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
