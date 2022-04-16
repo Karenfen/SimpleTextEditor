@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setCentralWidget(ui->centralwidget_2); // не понял как сделать это через форму, поэтому сделал так)
     ui->centralwidget->close();
     this->setWindowIcon(QIcon(":/images/icon.png"));
-    this->setWindowTitle("Новый файл");
+    this->setWindowTitle("Simple Text Editor");
 
     /* создаё фон */
 
@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent)
 
         fileTXT.close();
     }
+
+
 }
 
 MainWindow::~MainWindow()
@@ -72,7 +74,7 @@ void MainWindow::on_pushButton_open_clicked()
         openFile.close();
 
         this->currentFilePath = fileName;
-        this->setWindowTitle(fileName);
+        ui->filePathInfo->setText(fileName);
     }
 }
 
@@ -93,7 +95,7 @@ void MainWindow::on_pushButton_save_clicked()
         openFile.close();
 
         currentFilePath = fileName;
-        this->setWindowTitle(fileName);
+        ui->filePathInfo->setText(fileName);
     }
 }
 
@@ -120,5 +122,5 @@ void MainWindow::on_pushButton_close_clicked()
 {
     ui->plainTextEdit->clear();
     this->currentFilePath = "";
-    this->setWindowTitle("Новый файл");
+    ui->filePathInfo->setText("новый файл");
 }

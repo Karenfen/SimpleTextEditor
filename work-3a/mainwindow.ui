@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>627</width>
-    <height>415</height>
+    <width>620</width>
+    <height>405</height>
    </rect>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -34,36 +34,15 @@
       <widget class="QPlainTextEdit" name="plainTextEdit"/>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QPushButton" name="pushButton_quickeSave">
-         <property name="text">
-          <string>сохранить файл</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_save">
-         <property name="text">
-          <string>сохранить как...</string>
-         </property>
-        </widget>
-       </item>
-       <item>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="1">
         <widget class="QPushButton" name="pushButton_open">
          <property name="text">
           <string>открыть файл</string>
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_close">
-         <property name="text">
-          <string>закрыть файл</string>
-         </property>
-        </widget>
-       </item>
-       <item>
+       <item row="0" column="3">
         <widget class="QPushButton" name="pushButton_help">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -76,7 +55,35 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="pushButton_close">
+         <property name="text">
+          <string>закрыть файл</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="pushButton_save">
+         <property name="text">
+          <string>сохранить как...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton_quickeSave">
+         <property name="text">
+          <string>сохранить изменения</string>
+         </property>
+        </widget>
+       </item>
       </layout>
+     </item>
+     <item>
+      <widget class="QLabel" name="filePathInfo">
+       <property name="text">
+        <string>новый файл</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
