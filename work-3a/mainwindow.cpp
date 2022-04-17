@@ -3,6 +3,8 @@
 
 #include <QTextStream>
 #include <QFileDialog>
+#include <QMenuBar>
+#include <QApplication>
 
 
 
@@ -30,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     /* создаём виджет справки */
 
     this->help_widget = new QPlainTextEdit;
-    this->help_widget->setWindowTitle("Справка");
+    this->help_widget->setWindowTitle(tr("Справка"));
     this->help_widget->setWindowIcon(QIcon(":/images/icon2.png"));
 
     QFile fileTXT(":/docs/help.txt");
@@ -45,12 +47,38 @@ MainWindow::MainWindow(QWidget *parent)
 
      /* добавляем подсказки для кнопок */
 
-    ui->pushButton_close->setToolTip("закрыть текущий файл без сохранения изменений");
-    ui->pushButton_help->setToolTip("открыть текст справки по приложению");
-    ui->pushButton_open->setToolTip("открыть файл для редактирования");
-    ui->pushButton_open_read_only->setToolTip("открыть файл только для просмотра");
-    ui->pushButton_quickeSave->setToolTip("сохранить изменения в открытом файле");
-    ui->pushButton_save->setToolTip("выбрать файл для сохранения изменений");
+    ui->pushButton_close->setToolTip(tr("закрыть текущий файл без сохранения изменений"));
+    ui->pushButton_help->setToolTip(tr("открыть текст справки по приложению"));
+    ui->pushButton_open->setToolTip(tr("открыть файл для редактирования"));
+    ui->pushButton_open_read_only->setToolTip(tr("открыть файл только для просмотра"));
+    ui->pushButton_quickeSave->setToolTip(tr("сохранить изменения в открытом файле"));
+    ui->pushButton_save->setToolTip(tr("выбрать файл для сохранения изменений"));
+
+     /* добавляем выбор языка */
+
+    this->menuBar = new QMenuBar(this);
+    this->menuBar->setGeometry(0, 0, 75, 25);
+
+    this->menuLeng = new QMenu(menuBar);
+    this->menuLeng->setTitle(tr("Язык"));
+    this->menuLeng->resize(100, 20);
+    this->menuLeng->setToolTip(tr("установить язык интерфейса"));
+
+    this->setRu = new QAction(this);
+    this->setRu->setText("Русский");
+    this->setRu->setObjectName("setRu");
+    this->setEn = new QAction(this);
+    this->setEn->setText("English");
+    this->setEn->setObjectName("setEn");
+
+    this->menuLeng->addAction(setRu);
+    this->menuLeng->addAction(setEn);
+
+    this->menuBar->addMenu(menuLeng);
+
+//    connect(setRu, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
+//    connect(setEn, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
+
 }
 
 MainWindow::~MainWindow()
@@ -68,9 +96,9 @@ void MainWindow::on_pushButton_help_clicked()
 
 void MainWindow::on_pushButton_open_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "выберите файл",
+    QString fileName = QFileDialog::getOpenFileName(this, tr("выберите файл"),
                                                     QDir::homePath(),
-                                                    "текст (*.txt)");
+                                                    tr("текст (*.txt)"));
     QFile openFile(fileName);
     if(openFile.open(QIODevice::ReadOnly))
     {
@@ -91,9 +119,9 @@ void MainWindow::on_pushButton_save_clicked()
 {
     if(!ui->plainTextEdit->isReadOnly())
     {
-        QString fileName = QFileDialog::getSaveFileName(this, "выберите файл",
+        QString fileName = QFileDialog::getSaveFileName(this, tr("выберите файл"),
                                                         QDir::homePath(),
-                                                        "текст (*.txt)");
+                                                        tr("текст (*.txt)"));
         QFile openFile(fileName);
         if(openFile.open(QIODevice::WriteOnly))
         {
@@ -136,16 +164,16 @@ void MainWindow::on_pushButton_close_clicked()
 {
     ui->plainTextEdit->clear();
     this->currentFilePath = "";
-    ui->filePathInfo->setText("новый файл");
+    ui->filePathInfo->setText(tr("новый файл"));
     ui->plainTextEdit->setReadOnly(false);
 }
 
 
 void MainWindow::on_pushButton_open_read_only_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "выберите файл",
+    QString fileName = QFileDialog::getOpenFileName(this, tr("выберите файл"),
                                                     QDir::homePath(),
-                                                    "текст (*.txt)");
+                                                    tr("текст (*.txt)"));
     QFile openFile(fileName);
     if(openFile.open(QIODevice::ReadOnly))
     {
@@ -161,4 +189,19 @@ void MainWindow::on_pushButton_open_read_only_clicked()
         ui->plainTextEdit->setReadOnly(true);
     }
 }
+
+
+//void MainWindow::onMenuActionClicked()
+//{
+//    QString language{"неизвестно"};
+//    QObject* obj = sender();
+
+//    if(obj->objectName() == "setRu") language = "ru";
+//    else if(obj->objectName() == "setEn") language = "en";
+
+//    this->translator.load(":/QtLanguage_" + language);
+//    qApp->installTranslator(&translator);
+//    ui->plainTextEdit->setPlainText(language);
+
+//}
 

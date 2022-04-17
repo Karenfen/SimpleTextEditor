@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTranslator>
 
 
 QT_BEGIN_NAMESPACE
@@ -30,14 +31,19 @@ private slots:
     void on_pushButton_save_clicked();
     void on_pushButton_quickeSave_clicked();
     void on_pushButton_close_clicked();
-
     void on_pushButton_open_read_only_clicked();
 
-private:
+//    void onMenuActionClicked();
 
+private:
     Ui::MainWindow *ui;
     QString currentFilePath;
     QPlainTextEdit* help_widget;
+    QMenuBar* menuBar;
+    QMenu* menuLeng;
+    QAction* setRu;
+    QAction* setEn;
+    QTranslator translator;
 
 };
 #endif // MAINWINDOW_H
