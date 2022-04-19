@@ -76,9 +76,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->menuBar->addMenu(menuLeng);
 
-//    connect(setRu, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
-//    connect(setEn, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
+    this->translator = new QTranslator(this);
+    connect(setRu, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
+    connect(setEn, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
 
+    centralWidget()->installEventFilter(this);
 }
 
 MainWindow::~MainWindow()
@@ -191,17 +193,46 @@ void MainWindow::on_pushButton_open_read_only_clicked()
 }
 
 
-//void MainWindow::onMenuActionClicked()
-//{
-//    QString language{"неизвестно"};
-//    QObject* obj = sender();
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
 
-//    if(obj->objectName() == "setRu") language = "ru";
-//    else if(obj->objectName() == "setEn") language = "en";
+    if((event->type() == QEvent::KeyRelease) & (obj == centralWidget()))
+    {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
-//    this->translator.load(":/QtLanguage_" + language);
-//    qApp->installTranslator(&translator);
-//    ui->plainTextEdit->setPlainText(language);
+        if(keyEvent->modifiers() == Qt::ControlModifier)
+        {
+            switch (keyEvent->key())
+            {
+            case Qt::Key::Key_S :
+                ui->pushButton_save->clicked();
+                return true;
+            case Qt::Key::Key_O :
+                ui->pushButton_open->clicked();
+                return true;
+            case Qt::Key::Key_N :
+                ui->pushButton_close->clicked();
+                return true;
+            case Qt::Key::Key_Q :
+                qApp->exit();
+                return true;
+            }
+        }
+    }
 
-//}
+    return QObject::eventFilter(obj, event);
+}
+
+
+void MainWindow::onMenuActionClicked()
+{
+    QString language{"неизвестно"};
+    QObject* obj = sender();
+
+    if(obj->objectName() == "setRu") language = "ru";
+    else if(obj->objectName() == "setEn") language = "en";
+
+    this->translator->load(":/QtLanguage_" + language);
+    qApp->installTranslator(translator);
+}
 

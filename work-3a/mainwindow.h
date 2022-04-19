@@ -33,9 +33,10 @@ private slots:
     void on_pushButton_close_clicked();
     void on_pushButton_open_read_only_clicked();
 
-//    void onMenuActionClicked();
+    void onMenuActionClicked();
 
 private:
+
     Ui::MainWindow *ui;
     QString currentFilePath;
     QPlainTextEdit* help_widget;
@@ -43,7 +44,10 @@ private:
     QMenu* menuLeng;
     QAction* setRu;
     QAction* setEn;
-    QTranslator translator;
+    QTranslator* translator;
 
+protected:
+
+    bool eventFilter(QObject* obj, QEvent* event) override;
 };
 #endif // MAINWINDOW_H
