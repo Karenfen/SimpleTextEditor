@@ -11,14 +11,11 @@ int main(int argc, char *argv[])
     QTranslator translat;
     QString language { QLocale::system().name() };
 
-    if(language == "ru_RU")
-    {
-        translat.load(":/QtLanguage_ru");
-    }
-    else
+    if(language != "ru_RU")
     {
         translat.load(":/QtLanguage_en");
     }
+
     a.installTranslator(&translat);
 
     MainWindow w;

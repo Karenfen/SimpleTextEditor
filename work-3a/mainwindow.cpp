@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QMenuBar>
 #include <QApplication>
+#include <QMessageBox>
 
 
 
@@ -32,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent)
     /* создаём виджет справки */
 
     this->help_widget = new QPlainTextEdit;
-//    this->help_widget->setWindowTitle(tr("Справка"));
     this->help_widget->setWindowIcon(QIcon(":/images/icon2.png"));
 
     QFile fileTXT(":/docs/help.txt");
@@ -45,24 +45,13 @@ MainWindow::MainWindow(QWidget *parent)
         fileTXT.close();
     }
 
-     /* добавляем подсказки для кнопок */
-
-//    ui->pushButton_close->setToolTip(tr("закрыть текущий файл без сохранения изменений"));
-//    ui->pushButton_help->setToolTip(tr("открыть текст справки по приложению"));
-//    ui->pushButton_open->setToolTip(tr("открыть файл для редактирования"));
-//    ui->pushButton_open_read_only->setToolTip(tr("открыть файл только для просмотра"));
-//    ui->pushButton_quickeSave->setToolTip(tr("сохранить изменения в открытом файле"));
-//    ui->pushButton_save->setToolTip(tr("выбрать файл для сохранения изменений"));
-
      /* добавляем выбор языка */
 
     this->menuBar = new QMenuBar(this);
-    this->menuBar->setGeometry(0, 0, 75, 25);
+    this->menuBar->setGeometry(0, 0, 15, 25);
 
     this->menuLeng = new QMenu(menuBar);
-    //this->menuLeng->setTitle(tr("Язык"));
     this->menuLeng->resize(100, 20);
-    //this->menuLeng->setToolTip(tr("установить язык интерфейса"));
 
     this->setRu = new QAction(this);
     this->setRu->setText("Русский");
@@ -77,11 +66,48 @@ MainWindow::MainWindow(QWidget *parent)
     this->menuBar->addMenu(menuLeng);
 
     this->translator = new QTranslator(this);
-    connect(setRu, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
-    connect(setEn, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
+    connect(setRu, &QAction::triggered, this, &MainWindow::onMenuLangClicked);
+    connect(setEn, &QAction::triggered, this, &MainWindow::onMenuLangClicked);
 
     this->centralWidget()->installEventFilter(this);
 
+    /* создаём виджет для замены комбинаций клавиш */
+    this->changeKeyWidjet = new QPlainTextEdit;
+    this->changeKeyWidjet->resize(500, 100);
+    this->changeKeyWidjet->setReadOnly(true);
+    this->changeKeyWidjet->setWindowModality(Qt::ApplicationModal);
+
+    /* создаём набор горячих клавишь */
+    hotKeys["save"] = Qt::Key::Key_S;
+    hotKeys["open"] = Qt::Key::Key_O;
+    hotKeys["close"] = Qt::Key::Key_N;
+    hotKeys["quit"] = Qt::Key::Key_Q;
+
+    /* добавляем меню для замены клавишь */
+    menuKey = new QMenu(menuBar);
+
+    setKeySave = new QAction(this);
+    setKeySave->setObjectName("save");
+    setKeyOpen = new QAction(this);
+    setKeyOpen->setObjectName("open");
+    setKeyQuit = new QAction(this);
+    setKeyQuit->setObjectName("quit");
+    setKeyClose = new QAction(this);
+    setKeyClose->setObjectName("close");
+    showKeys = new QAction(this);
+
+    menuKey->addActions({showKeys, setKeyClose, setKeyOpen, setKeySave, setKeyQuit});
+    menuBar->addMenu(menuKey);
+
+    connect(setKeySave, &QAction::triggered, this, &MainWindow::onMenuKeyCliced);
+    connect(setKeyOpen, &QAction::triggered, this, &MainWindow::onMenuKeyCliced);
+    connect(setKeyClose, &QAction::triggered, this, &MainWindow::onMenuKeyCliced);
+    connect(setKeyQuit, &QAction::triggered, this, &MainWindow::onMenuKeyCliced);
+    connect(showKeys, &QAction::triggered, this, &MainWindow::onMenuKeyInfo);
+
+    changeKeyWidjet->installEventFilter(this);
+
+    /* устанавливаем текст подсказок на установленном языке */
     this->setLeng();
 }
 
@@ -89,11 +115,17 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete help_widget;
-    delete menuBar;
-    delete menuLeng;
-    delete setRu;
-    delete setEn;
-    delete translator;
+    delete changeKeyWidjet;
+//    delete menuBar;
+//    delete menuLeng;
+//    delete setRu;
+//    delete setEn;
+//    delete translator;
+//    delete menuKey;
+//    delete setKeySave;
+//    delete setKeyOpen;
+//    delete setKeyQuit;
+//    delete setKeyKlose;
 }
 
 
@@ -203,26 +235,75 @@ void MainWindow::on_pushButton_open_read_only_clicked()
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
 
-    if((event->type() == QEvent::KeyRelease) & (obj == centralWidget()))
+    if(event->type() == QEvent::KeyRelease)
     {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-
-        if(keyEvent->modifiers() == Qt::ControlModifier)
+        if(obj == changeKeyWidjet)
         {
-            switch (keyEvent->key())
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+             if(keyEvent->modifiers() == Qt::ControlModifier)
+             {
+                 QString objName = obj->objectName();
+
+                 if(objName == "save")
+                 {
+                    hotKeys["save"] = keyEvent->key();
+                    QMessageBox::information(this, tr("внимание!"), tr("заменя - успешна!"));
+                    changeKeyWidjet->hide();
+                    return true;
+                 }
+                 if(objName == "close")
+                 {
+                     hotKeys["close"] = keyEvent->key();
+                     QMessageBox::information(this, tr("внимание!"), tr("заменя - успешна!"));
+                     changeKeyWidjet->hide();
+                     return true;
+                 }
+                 if(objName == "quit")
+                 {
+                     hotKeys["quit"] = keyEvent->key();
+                     QMessageBox::information(this, tr("внимание!"), tr("заменя - успешна!"));
+                     changeKeyWidjet->hide();
+                     return true;
+                 }
+                 if(objName == "open")
+                 {
+                     hotKeys["open"] = keyEvent->key();
+                     QMessageBox::information(this, tr("внимание!"), tr("заменя - успешна!"));
+                     changeKeyWidjet->hide();
+                     return true;
+                 }
+             }
+        }
+
+        if(obj == centralWidget())
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+            if(keyEvent->modifiers() == Qt::ControlModifier)
             {
-            case Qt::Key::Key_S :
-                ui->pushButton_save->clicked();
-                return true;
-            case Qt::Key::Key_O :
-                ui->pushButton_open->clicked();
-                return true;
-            case Qt::Key::Key_N :
-                ui->pushButton_close->clicked();
-                return true;
-            case Qt::Key::Key_Q :
-                qApp->exit();
-                return true;
+
+                if(keyEvent->key() == hotKeys.at("save"))
+                {
+                    ui->pushButton_save->clicked();
+                    return true;
+                }
+                if(keyEvent->key() == hotKeys.at("open"))
+                {
+                    ui->pushButton_open->clicked();
+                    return true;
+                }
+                if(keyEvent->key() == hotKeys.at("close"))
+
+                {
+                    ui->pushButton_close->clicked();
+                    return true;
+                }
+                if(keyEvent->key() == hotKeys.at("quit"))
+                {
+                    qApp->exit();
+                    return true;
+                }
             }
         }
     }
@@ -231,20 +312,61 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-void MainWindow::onMenuActionClicked()
+void MainWindow::onMenuLangClicked()
 {
-    QString language{"неизвестно"};
-
     QObject* obj = sender();
 
-    if(obj->objectName() == "setRu") language = "ru";
-    else if(obj->objectName() == "setEn") language = "en";
+    if(obj->objectName() == "setRu")
+    {
+        qApp->removeTranslator(translator);
+    }
+    else if(obj->objectName() == "setEn")
+    {
+        this->translator->load(":/QtLanguage_en");
+        qApp->installTranslator(translator);
+    }
 
-    this->translator->load(":/QtLanguage_" + language);
-    qApp->installTranslator(translator);
     ui->retranslateUi(this);
     this->setLeng();
+
 }
+
+
+void MainWindow::onMenuKeyCliced()
+{
+    QObject* obj = sender();
+    QString objName = obj->objectName();
+
+    if(objName == "save")
+    {
+        changeKeyWidjet->setObjectName("save");
+        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"сохраение\""));
+    }
+    else if(objName == "close")
+    {
+        changeKeyWidjet->setObjectName("close");
+        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"закрыть документ\""));
+    }
+    else if(objName == "quit")
+    {
+        changeKeyWidjet->setObjectName("quit");
+        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"закрыть программу\""));
+    }
+    else if(objName == "open")
+    {
+        changeKeyWidjet->setObjectName("open");
+        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"открыть файл\""));
+    }
+
+    changeKeyWidjet->show();
+}
+
+
+void MainWindow::onMenuKeyInfo()
+{
+    QMessageBox::information(this, tr("горячие клавиши"), hoKeyList());
+}
+
 
 void MainWindow::setLeng()
 {
@@ -257,5 +379,28 @@ void MainWindow::setLeng()
     ui->pushButton_save->setToolTip(tr("выбрать файл для сохранения изменений"));
     this->menuLeng->setTitle(tr("Язык"));
     this->menuLeng->setToolTip(tr("установить язык интерфейса"));
+    menuKey->setTitle(tr("корячие клавиши"));
+    menuKey->setToolTip(tr("нажмите для замены комбинации клавишь"));
+    setKeySave->setText(tr("сохранить как..."));
+    setKeyOpen->setText(tr("открыть новый документ"));
+    setKeyQuit->setText(tr("закрыть программу"));
+    setKeyClose->setText(tr("закрыть документ не сохраняя"));
+    changeKeyWidjet->setPlainText(tr("нажмите CTRL + клавишу для замены"));
+    showKeys->setText(tr("посмотреть горячие клавиши"));
+}
+
+QString MainWindow::hoKeyList()
+{
+    QString text{tr("текущие настройки клавишь:\n")};
+
+    for (const auto& element : hotKeys)
+    {
+        text += element.first;
+        text += tr("  -  клавиша: ");
+        text += element.second;
+        text += "\n";
+    }
+
+    return text;
 }
 

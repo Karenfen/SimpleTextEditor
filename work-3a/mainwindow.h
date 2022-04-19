@@ -33,20 +33,31 @@ private slots:
     void on_pushButton_close_clicked();
     void on_pushButton_open_read_only_clicked();
 
-    void onMenuActionClicked();
+    void onMenuLangClicked();
+    void onMenuKeyCliced();
+    void onMenuKeyInfo();
 
 private:
 
     Ui::MainWindow *ui;
     QString currentFilePath;
     QPlainTextEdit* help_widget;
+    QPlainTextEdit* changeKeyWidjet;
     QMenuBar* menuBar;
     QMenu* menuLeng;
     QAction* setRu;
     QAction* setEn;
+    QMenu* menuKey;
+    QAction* setKeySave;
+    QAction* setKeyOpen;
+    QAction* setKeyQuit;
+    QAction* setKeyClose;
+    QAction* showKeys;
     QTranslator* translator;
+    std::map<QString, int>hotKeys;
 
     void setLeng();
+    QString hoKeyList();
 
 protected:
 
