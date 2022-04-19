@@ -46,6 +46,8 @@ private:
     QAction* setEn;
     QTranslator* translator;
 
+    void setLeng();
+
 protected:
 
     bool eventFilter(QObject* obj, QEvent* event) override;

@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     /* создаём виджет справки */
 
     this->help_widget = new QPlainTextEdit;
-    this->help_widget->setWindowTitle(tr("Справка"));
+//    this->help_widget->setWindowTitle(tr("Справка"));
     this->help_widget->setWindowIcon(QIcon(":/images/icon2.png"));
 
     QFile fileTXT(":/docs/help.txt");
@@ -47,12 +47,12 @@ MainWindow::MainWindow(QWidget *parent)
 
      /* добавляем подсказки для кнопок */
 
-    ui->pushButton_close->setToolTip(tr("закрыть текущий файл без сохранения изменений"));
-    ui->pushButton_help->setToolTip(tr("открыть текст справки по приложению"));
-    ui->pushButton_open->setToolTip(tr("открыть файл для редактирования"));
-    ui->pushButton_open_read_only->setToolTip(tr("открыть файл только для просмотра"));
-    ui->pushButton_quickeSave->setToolTip(tr("сохранить изменения в открытом файле"));
-    ui->pushButton_save->setToolTip(tr("выбрать файл для сохранения изменений"));
+//    ui->pushButton_close->setToolTip(tr("закрыть текущий файл без сохранения изменений"));
+//    ui->pushButton_help->setToolTip(tr("открыть текст справки по приложению"));
+//    ui->pushButton_open->setToolTip(tr("открыть файл для редактирования"));
+//    ui->pushButton_open_read_only->setToolTip(tr("открыть файл только для просмотра"));
+//    ui->pushButton_quickeSave->setToolTip(tr("сохранить изменения в открытом файле"));
+//    ui->pushButton_save->setToolTip(tr("выбрать файл для сохранения изменений"));
 
      /* добавляем выбор языка */
 
@@ -60,9 +60,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->menuBar->setGeometry(0, 0, 75, 25);
 
     this->menuLeng = new QMenu(menuBar);
-    this->menuLeng->setTitle(tr("Язык"));
+    //this->menuLeng->setTitle(tr("Язык"));
     this->menuLeng->resize(100, 20);
-    this->menuLeng->setToolTip(tr("установить язык интерфейса"));
+    //this->menuLeng->setToolTip(tr("установить язык интерфейса"));
 
     this->setRu = new QAction(this);
     this->setRu->setText("Русский");
@@ -80,13 +80,20 @@ MainWindow::MainWindow(QWidget *parent)
     connect(setRu, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
     connect(setEn, &QAction::triggered, this, &MainWindow::onMenuActionClicked);
 
-    centralWidget()->installEventFilter(this);
+    this->centralWidget()->installEventFilter(this);
+
+    this->setLeng();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete help_widget;
+    delete menuBar;
+    delete menuLeng;
+    delete setRu;
+    delete setEn;
+    delete translator;
 }
 
 
@@ -227,6 +234,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 void MainWindow::onMenuActionClicked()
 {
     QString language{"неизвестно"};
+
     QObject* obj = sender();
 
     if(obj->objectName() == "setRu") language = "ru";
@@ -234,5 +242,20 @@ void MainWindow::onMenuActionClicked()
 
     this->translator->load(":/QtLanguage_" + language);
     qApp->installTranslator(translator);
+    ui->retranslateUi(this);
+    this->setLeng();
+}
+
+void MainWindow::setLeng()
+{
+    this->help_widget->setWindowTitle(tr("Справка"));
+    ui->pushButton_close->setToolTip(tr("закрыть текущий файл без сохранения изменений"));
+    ui->pushButton_help->setToolTip(tr("открыть текст справки по приложению"));
+    ui->pushButton_open->setToolTip(tr("открыть файл для редактирования"));
+    ui->pushButton_open_read_only->setToolTip(tr("открыть файл только для просмотра"));
+    ui->pushButton_quickeSave->setToolTip(tr("сохранить изменения в открытом файле"));
+    ui->pushButton_save->setToolTip(tr("выбрать файл для сохранения изменений"));
+    this->menuLeng->setTitle(tr("Язык"));
+    this->menuLeng->setToolTip(tr("установить язык интерфейса"));
 }
 
