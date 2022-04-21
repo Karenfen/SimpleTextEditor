@@ -1,141 +1,84 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "texteditor.h"
+#include "ui_texteditor.h"
 
 #include <QTextStream>
 #include <QFileDialog>
-#include <QMenuBar>
 #include <QApplication>
 #include <QMessageBox>
 
 
 
-MainWindow::MainWindow(QWidget *parent)
+textEditor::textEditor(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::textEditor)
 {
     ui->setupUi(this);
 
-    this->currentFilePath = "";
-    this->setCentralWidget(ui->centralwidget_2); // не понял как сделать это через форму, поэтому сделал так)
-    ui->centralwidget->close();
-    this->setWindowIcon(QIcon(":/images/icon.png"));
-    this->setWindowTitle("Simple Text Editor");
+    translator = new QTranslator;
+    help_widget = new QPlainTextEdit;
+    changeKeyWidjet = new QPlainTextEdit;
 
-    /* создаё фон */
 
-    QPixmap pix_bg(":/images/bg.jpg");
-    QPalette myPalette;
+// создаём меню
+    menuLeng = new QMenu(ui->menubar);
 
-    myPalette.setBrush(QPalette::Background, pix_bg);
+    setRu = new QAction(this);
+    setEn = new QAction(this);
 
-    this->setPalette(myPalette);
+    setEn->setObjectName("setEn");
+    setRu->setObjectName("setRu");
 
-    /* создаём виджет справки */
+    menuLeng->addActions({setRu, setEn});
 
-    this->help_widget = new QPlainTextEdit;
-    this->help_widget->setWindowIcon(QIcon(":/images/icon2.png"));
-
-    QFile fileTXT(":/docs/help.txt");
-
-    if(fileTXT.open(QIODevice::ReadOnly))
-    {
-        QTextStream readText(&fileTXT);
-        this->help_widget->setPlainText(readText.readAll());
-
-        fileTXT.close();
-    }
-
-     /* добавляем выбор языка */
-
-    this->menuBar = new QMenuBar(this);
-    this->menuBar->setGeometry(0, 0, 15, 25);
-
-    this->menuLeng = new QMenu(menuBar);
-    this->menuLeng->resize(100, 20);
-
-    this->setRu = new QAction(this);
-    this->setRu->setText("Русский");
-    this->setRu->setObjectName("setRu");
-    this->setEn = new QAction(this);
-    this->setEn->setText("English");
-    this->setEn->setObjectName("setEn");
-
-    this->menuLeng->addAction(setRu);
-    this->menuLeng->addAction(setEn);
-
-    this->menuBar->addMenu(menuLeng);
-
-    this->translator = new QTranslator(this);
-    connect(setRu, &QAction::triggered, this, &MainWindow::onMenuLangClicked);
-    connect(setEn, &QAction::triggered, this, &MainWindow::onMenuLangClicked);
-
-    this->centralWidget()->installEventFilter(this);
-
-    /* создаём виджет для замены комбинаций клавиш */
-    this->changeKeyWidjet = new QPlainTextEdit;
-    this->changeKeyWidjet->resize(500, 100);
-    this->changeKeyWidjet->setReadOnly(true);
-    this->changeKeyWidjet->setWindowModality(Qt::ApplicationModal);
-
-    /* создаём набор горячих клавишь */
-    hotKeys["save"] = Qt::Key::Key_S;
-    hotKeys["open"] = Qt::Key::Key_O;
-    hotKeys["close"] = Qt::Key::Key_N;
-    hotKeys["quit"] = Qt::Key::Key_Q;
-
-    /* добавляем меню для замены клавишь */
-    menuKey = new QMenu(menuBar);
+    menuKey = new QMenu(ui->menubar);
 
     setKeySave = new QAction(this);
-    setKeySave->setObjectName("save");
     setKeyOpen = new QAction(this);
-    setKeyOpen->setObjectName("open");
     setKeyQuit = new QAction(this);
-    setKeyQuit->setObjectName("quit");
     setKeyClose = new QAction(this);
-    setKeyClose->setObjectName("close");
     showKeys = new QAction(this);
 
+    setKeySave->setObjectName("save");
+    setKeyOpen->setObjectName("open");
+    setKeyQuit->setObjectName("quit");
+    setKeyClose->setObjectName("close");
+
     menuKey->addActions({showKeys, setKeyClose, setKeyOpen, setKeySave, setKeyQuit});
-    menuBar->addMenu(menuKey);
 
-    connect(setKeySave, &QAction::triggered, this, &MainWindow::onMenuKeyCliced);
-    connect(setKeyOpen, &QAction::triggered, this, &MainWindow::onMenuKeyCliced);
-    connect(setKeyClose, &QAction::triggered, this, &MainWindow::onMenuKeyCliced);
-    connect(setKeyQuit, &QAction::triggered, this, &MainWindow::onMenuKeyCliced);
-    connect(showKeys, &QAction::triggered, this, &MainWindow::onMenuKeyInfo);
+    ui->menubar->addMenu(menuLeng);
+    ui->menubar->addMenu(menuKey);
 
+
+// устанавливаем коннекты
+    connect(setKeySave, &QAction::triggered, this, &textEditor::onMenuKeyCliced);
+    connect(setKeyOpen, &QAction::triggered, this, &textEditor::onMenuKeyCliced);
+    connect(setKeyClose, &QAction::triggered, this, &textEditor::onMenuKeyCliced);
+    connect(setKeyQuit, &QAction::triggered, this, &textEditor::onMenuKeyCliced);
+    connect(showKeys, &QAction::triggered, this, &textEditor::onMenuKeyInfo);
+    connect(setRu, &QAction::triggered, this, &textEditor::onMenuLangClicked);
+    connect(setEn, &QAction::triggered, this, &textEditor::onMenuLangClicked);
+
+
+// устанавливаем ивент-фильтры
+    centralWidget()->installEventFilter(this);
     changeKeyWidjet->installEventFilter(this);
 
-    /* устанавливаем текст подсказок на установленном языке */
-    this->setLeng();
 }
 
-MainWindow::~MainWindow()
+textEditor::~textEditor()
 {
     delete ui;
     delete help_widget;
     delete changeKeyWidjet;
-//    delete menuBar;
-//    delete menuLeng;
-//    delete setRu;
-//    delete setEn;
-//    delete translator;
-//    delete menuKey;
-//    delete setKeySave;
-//    delete setKeyOpen;
-//    delete setKeyQuit;
-//    delete setKeyKlose;
 }
 
-
-void MainWindow::on_pushButton_help_clicked()
+void textEditor::on_pushButton_help_clicked()
 {
-    this->help_widget->show();
+    help_widget->show();
 }
 
 
-void MainWindow::on_pushButton_open_clicked()
+void textEditor::on_pushButton_open_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("выберите файл"),
                                                     QDir::homePath(),
@@ -149,14 +92,14 @@ void MainWindow::on_pushButton_open_clicked()
 
         openFile.close();
 
-        this->currentFilePath = fileName;
-        ui->filePathInfo->setText(fileName);
+        currentFilePath = fileName;
+        setStatusTip(fileName);
         ui->plainTextEdit->setReadOnly(false);
     }
 }
 
 
-void MainWindow::on_pushButton_save_clicked()
+void textEditor::on_pushButton_save_clicked()
 {
     if(!ui->plainTextEdit->isReadOnly())
     {
@@ -174,13 +117,13 @@ void MainWindow::on_pushButton_save_clicked()
             openFile.close();
 
             currentFilePath = fileName;
-            ui->filePathInfo->setText(fileName);
+            setStatusTip(fileName);
         }
     }
 }
 
 
-void MainWindow::on_pushButton_quickeSave_clicked()
+void textEditor::on_pushButton_quickeSave_clicked()
 {
     if(!ui->plainTextEdit->isReadOnly())
     {
@@ -201,16 +144,16 @@ void MainWindow::on_pushButton_quickeSave_clicked()
 }
 
 
-void MainWindow::on_pushButton_close_clicked()
+void textEditor::on_pushButton_close_clicked()
 {
     ui->plainTextEdit->clear();
-    this->currentFilePath = "";
-    ui->filePathInfo->setText(tr("новый файл"));
+    currentFilePath = "";
+    setStatusTip(tr("новый файл"));
     ui->plainTextEdit->setReadOnly(false);
 }
 
 
-void MainWindow::on_pushButton_open_read_only_clicked()
+void textEditor::on_pushButton_open_read_only_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("выберите файл"),
                                                     QDir::homePath(),
@@ -224,15 +167,15 @@ void MainWindow::on_pushButton_open_read_only_clicked()
 
         openFile.close();
 
-        this->currentFilePath = fileName;
-        ui->filePathInfo->setText(fileName);
+        currentFilePath = fileName;
+        setStatusTip(fileName);
 
         ui->plainTextEdit->setReadOnly(true);
     }
 }
 
 
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+bool textEditor::eventFilter(QObject *obj, QEvent *event)
 {
 
     if(event->type() == QEvent::KeyRelease)
@@ -285,18 +228,18 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
                 if(keyEvent->key() == hotKeys.at("save"))
                 {
-                    ui->pushButton_save->clicked();
+                    textEditor::on_pushButton_save_clicked();
                     return true;
                 }
                 if(keyEvent->key() == hotKeys.at("open"))
                 {
-                    ui->pushButton_open->clicked();
+                    on_pushButton_open_clicked();
                     return true;
                 }
                 if(keyEvent->key() == hotKeys.at("close"))
 
                 {
-                    ui->pushButton_close->clicked();
+                    on_pushButton_close_clicked();
                     return true;
                 }
                 if(keyEvent->key() == hotKeys.at("quit"))
@@ -312,7 +255,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-void MainWindow::onMenuLangClicked()
+void textEditor::onMenuLangClicked()
 {
     QObject* obj = sender();
 
@@ -322,17 +265,17 @@ void MainWindow::onMenuLangClicked()
     }
     else if(obj->objectName() == "setEn")
     {
-        this->translator->load(":/QtLanguage_en");
+        translator->load(":/QtLanguage_en");
         qApp->installTranslator(translator);
     }
 
     ui->retranslateUi(this);
-    this->setLeng();
+    setText();
 
 }
 
 
-void MainWindow::onMenuKeyCliced()
+void textEditor::onMenuKeyCliced()
 {
     QObject* obj = sender();
     QString objName = obj->objectName();
@@ -362,23 +305,23 @@ void MainWindow::onMenuKeyCliced()
 }
 
 
-void MainWindow::onMenuKeyInfo()
+void textEditor::onMenuKeyInfo()
 {
     QMessageBox::information(this, tr("горячие клавиши"), hoKeyList());
 }
 
 
-void MainWindow::setLeng()
+void textEditor::setText()
 {
-    this->help_widget->setWindowTitle(tr("Справка"));
+    help_widget->setWindowTitle(tr("Справка"));
     ui->pushButton_close->setToolTip(tr("закрыть текущий файл без сохранения изменений"));
     ui->pushButton_help->setToolTip(tr("открыть текст справки по приложению"));
     ui->pushButton_open->setToolTip(tr("открыть файл для редактирования"));
     ui->pushButton_open_read_only->setToolTip(tr("открыть файл только для просмотра"));
     ui->pushButton_quickeSave->setToolTip(tr("сохранить изменения в открытом файле"));
     ui->pushButton_save->setToolTip(tr("выбрать файл для сохранения изменений"));
-    this->menuLeng->setTitle(tr("Язык"));
-    this->menuLeng->setToolTip(tr("установить язык интерфейса"));
+    menuLeng->setTitle(tr("Язык"));
+    menuLeng->setToolTip(tr("установить язык интерфейса"));
     menuKey->setTitle(tr("корячие клавиши"));
     menuKey->setToolTip(tr("нажмите для замены комбинации клавишь"));
     setKeySave->setText(tr("сохранить как..."));
@@ -389,7 +332,60 @@ void MainWindow::setLeng()
     showKeys->setText(tr("посмотреть горячие клавиши"));
 }
 
-QString MainWindow::hoKeyList()
+void textEditor::personalization()
+{
+    currentFilePath = "";
+
+
+ // настраиваем главное окно
+
+    setWindowIcon(QIcon(":/images/icon.png"));
+
+    QPixmap pix_bg(":/images/bg.jpg");
+    QPalette myPalette;
+
+    myPalette.setBrush(QPalette::Background, pix_bg);
+
+    setPalette(myPalette);
+
+
+// настраиваем окно справки
+
+    help_widget->setWindowIcon(QIcon(":/images/icon2.png"));
+
+    QFile fileTXT(":/docs/help.txt");
+
+    if(fileTXT.open(QIODevice::ReadOnly))
+    {
+        QTextStream readText(&fileTXT);
+        help_widget->setPlainText(readText.readAll());
+
+        fileTXT.close();
+    }
+
+
+// настраиваем меню
+
+    menuLeng->resize(100, 20);
+    setRu->setText("Русский");
+    setEn->setText("English");
+
+// настраиваем окно подсказки
+
+    changeKeyWidjet->resize(500, 100);
+    changeKeyWidjet->setReadOnly(true);
+    changeKeyWidjet->setWindowModality(Qt::ApplicationModal);
+
+
+// создаём набор горячих клавишь
+    hotKeys["save"] = Qt::Key::Key_S;
+    hotKeys["open"] = Qt::Key::Key_O;
+    hotKeys["close"] = Qt::Key::Key_N;
+    hotKeys["quit"] = Qt::Key::Key_Q;
+
+}
+
+QString textEditor::hoKeyList()
 {
     QString text{tr("текущие настройки клавишь:\n")};
 
@@ -403,4 +399,3 @@ QString MainWindow::hoKeyList()
 
     return text;
 }
-

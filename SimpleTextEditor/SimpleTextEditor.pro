@@ -10,24 +10,23 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    texteditor.cpp
 
 HEADERS += \
-    mainwindow.h
+    texteditor.h
 
 FORMS += \
-    mainwindow.ui
-
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+    texteditor.ui
 
 RESOURCES += \
     mySources.qrc
 
 TRANSLATIONS += \
-    QtLanguage_ru.ts \
     QtLanguage_en.ts
 
 CODECFORSRC = UTF-8
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target

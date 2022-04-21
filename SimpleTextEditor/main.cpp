@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "texteditor.h"
 
 #include <QApplication>
 
@@ -18,7 +18,9 @@ int main(int argc, char *argv[])
 
     a.installTranslator(&translat);
 
-    MainWindow w;
+    textEditor w;
+    w.personalization();
+    w.setText();
     w.show();
     return a.exec();
 }

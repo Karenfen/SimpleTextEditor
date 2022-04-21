@@ -1,28 +1,24 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef TEXTEDITOR_H
+#define TEXTEDITOR_H
 
 #include <QMainWindow>
 #include <QTranslator>
 
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui { class textEditor; }
 QT_END_NAMESPACE
-
-
 
 class QPlainTextEdit;
 
 
-
-class MainWindow : public QMainWindow
+class textEditor : public QMainWindow
 {
     Q_OBJECT
 
 public:
-
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    textEditor(QWidget *parent = nullptr);
+    ~textEditor();
 
 private slots:
 
@@ -39,11 +35,10 @@ private slots:
 
 private:
 
-    Ui::MainWindow *ui;
+    Ui::textEditor *ui;
     QString currentFilePath;
     QPlainTextEdit* help_widget;
     QPlainTextEdit* changeKeyWidjet;
-    QMenuBar* menuBar;
     QMenu* menuLeng;
     QAction* setRu;
     QAction* setEn;
@@ -56,11 +51,15 @@ private:
     QTranslator* translator;
     std::map<QString, int>hotKeys;
 
-    void setLeng();
     QString hoKeyList();
+
+public:
+
+    void setText();
+    void personalization();
 
 protected:
 
     bool eventFilter(QObject* obj, QEvent* event) override;
 };
-#endif // MAINWINDOW_H
+#endif // TEXTEDITOR_H
