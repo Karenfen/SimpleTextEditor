@@ -176,62 +176,62 @@
         <translation>open file</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="123"/>
-        <location filename="texteditor.cpp" line="146"/>
-        <location filename="texteditor.cpp" line="198"/>
+        <location filename="texteditor.cpp" line="96"/>
+        <location filename="texteditor.cpp" line="119"/>
+        <location filename="texteditor.cpp" line="171"/>
         <source>выберите файл</source>
         <translation>choose file</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="125"/>
-        <location filename="texteditor.cpp" line="148"/>
-        <location filename="texteditor.cpp" line="200"/>
+        <location filename="texteditor.cpp" line="98"/>
+        <location filename="texteditor.cpp" line="121"/>
+        <location filename="texteditor.cpp" line="173"/>
         <source>текст (*.txt)</source>
         <translation>text (*.txt)</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="191"/>
+        <location filename="texteditor.cpp" line="164"/>
         <source>новый файл</source>
         <translation>new file</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="234"/>
-        <location filename="texteditor.cpp" line="241"/>
-        <location filename="texteditor.cpp" line="248"/>
-        <location filename="texteditor.cpp" line="255"/>
+        <location filename="texteditor.cpp" line="207"/>
+        <location filename="texteditor.cpp" line="214"/>
+        <location filename="texteditor.cpp" line="221"/>
+        <location filename="texteditor.cpp" line="228"/>
         <source>внимание!</source>
         <translation>Attention!</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="234"/>
-        <location filename="texteditor.cpp" line="241"/>
-        <location filename="texteditor.cpp" line="248"/>
-        <location filename="texteditor.cpp" line="255"/>
+        <location filename="texteditor.cpp" line="207"/>
+        <location filename="texteditor.cpp" line="214"/>
+        <location filename="texteditor.cpp" line="221"/>
+        <location filename="texteditor.cpp" line="228"/>
         <source>заменя - успешна!</source>
         <translation>replacement successful!</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="326"/>
+        <location filename="texteditor.cpp" line="299"/>
         <source>Замена горячей клавиши &quot;сохраение&quot;</source>
         <translation>Replacing the &quot;save&quot; hotkey</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="331"/>
+        <location filename="texteditor.cpp" line="304"/>
         <source>Замена горячей клавиши &quot;закрыть документ&quot;</source>
         <translation>Replacing the &quot;close document&quot; hotkey</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="336"/>
+        <location filename="texteditor.cpp" line="309"/>
         <source>Замена горячей клавиши &quot;закрыть программу&quot;</source>
         <translation>Replacing the &quot;close program&quot; hotkey</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="341"/>
+        <location filename="texteditor.cpp" line="314"/>
         <source>Замена горячей клавиши &quot;открыть файл&quot;</source>
         <translation>Replacing the hot key &quot;open file&quot;</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="350"/>
+        <location filename="texteditor.cpp" line="323"/>
         <source>горячие клавиши</source>
         <translation>Hotkeys</translation>
     </message>
@@ -317,18 +317,39 @@
     </message>
     <message>
         <location filename="texteditor.cpp" line="373"/>
-        <source>Новый файл</source>
-        <translation>new file</translation>
+        <source>посмотреть текущие настройки клавишь</source>
+        <translation>view current hotkeys settings</translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="378"/>
+        <location filename="texteditor.cpp" line="374"/>
+        <source>оформление</source>
+        <oldsource>Новый файл</oldsource>
+        <translation>themes</translation>
+    </message>
+    <message>
+        <location filename="texteditor.cpp" line="375"/>
+        <source>светлая тема</source>
+        <translation>light theme</translation>
+    </message>
+    <message>
+        <location filename="texteditor.cpp" line="376"/>
+        <source>тёмная тема</source>
+        <translation>dark theme</translation>
+    </message>
+    <message>
+        <location filename="texteditor.cpp" line="377"/>
+        <source>нажмите для смены темы оформления</source>
+        <translation>click to change theme</translation>
+    </message>
+    <message>
+        <location filename="texteditor.cpp" line="434"/>
         <source>текущие настройки клавишь:
 </source>
         <translation>current key settings:
 </translation>
     </message>
     <message>
-        <location filename="texteditor.cpp" line="383"/>
+        <location filename="texteditor.cpp" line="439"/>
         <source>  -  клавиша: </source>
         <translation>  -  key: </translation>
     </message>
