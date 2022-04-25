@@ -17,6 +17,7 @@ textEditor::textEditor(QWidget *parent)
     translator = new QTranslator;
     help_widget = new QPlainTextEdit;
     changeKeyWidjet = new QPlainTextEdit;
+    fileView = std::make_shared<filer>(nullptr, ".txt");
 
 
 // создаём меню
@@ -70,7 +71,7 @@ textEditor::textEditor(QWidget *parent)
     connect(setEn, &QAction::triggered, this, &textEditor::onMenuLangClicked);
     connect(lightTheme, &QAction::triggered, this, &textEditor::setLightTheme);
     connect(darkTheme, &QAction::triggered, this, &textEditor::setDarkTheme);
-
+    connect(fileView.get(), SIGNAL(fileSelected(QString)), this, SLOT(filerReturnPath(QString)));
 
 // устанавливаем ивент-фильтры
     centralWidget()->installEventFilter(this);
@@ -120,6 +121,7 @@ void textEditor::on_pushButton_save_clicked()
                                                         QDir::homePath(),
                                                         tr("текст (*.txt)"));
         QFile openFile(fileName);
+
         if(openFile.open(QIODevice::WriteOnly))
         {
             QTextStream writeText(&openFile);
@@ -346,7 +348,6 @@ void textEditor::setLightTheme()
     myPalette.setBrush(QPalette::Background, pix_bg);
 
     setPalette(myPalette);
-
 }
 
 void textEditor::setDarkTheme()
@@ -370,7 +371,6 @@ void textEditor::setDarkTheme()
     myPalette.setBrush(QPalette::Background, pix_bg);
 
     setPalette(myPalette);
-
 }
 
 
@@ -402,6 +402,8 @@ void textEditor::setText()
 void textEditor::personalization()
 {
     setLightTheme();
+
+    resize(860, 480);
 
     currentFilePath = "";
 
@@ -455,3 +457,27 @@ QString textEditor::hoKeyList()
 
     return text;
 }
+
+void textEditor::on_openFiler_clicked()
+{
+    fileView->show();
+}
+
+
+void textEditor::filerReturnPath(const QString& path)
+{
+    QFile openFile(path);
+    if(openFile.open(QIODevice::ReadOnly))
+    {
+        QTextStream readText(&openFile);
+
+        ui->plainTextEdit->setPlainText(readText.readAll());
+
+        openFile.close();
+
+        currentFilePath = path;
+        setStatusTip(path);
+        ui->plainTextEdit->setReadOnly(false);
+    }
+}
+
