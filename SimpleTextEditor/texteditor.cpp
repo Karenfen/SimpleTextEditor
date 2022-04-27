@@ -285,6 +285,7 @@ void textEditor::onMenuLangClicked()
     }
 
     ui->retranslateUi(this);
+    fileView->retranslateUi();
     setText();
 
 }
@@ -335,19 +336,12 @@ void textEditor::setLightTheme()
         QString temeSettings{temeFile.readAll()};
 
         qApp->setStyleSheet(temeSettings);
-
         temeFile.close();
     }
 
 
     setWindowIcon(QIcon(":/images/icon_dark_cat.png"));
 
-    QPixmap pix_bg(":/images/light_background.jpg");
-    QPalette myPalette;
-
-    myPalette.setBrush(QPalette::Background, pix_bg);
-
-    setPalette(myPalette);
 }
 
 void textEditor::setDarkTheme()
@@ -365,12 +359,6 @@ void textEditor::setDarkTheme()
 
     setWindowIcon(QIcon(":/images/icon_light_cat.png"));
 
-    QPixmap pix_bg(":/images/dark_background.jpg");
-    QPalette myPalette;
-
-    myPalette.setBrush(QPalette::Background, pix_bg);
-
-    setPalette(myPalette);
 }
 
 
@@ -433,6 +421,7 @@ void textEditor::personalization()
     changeKeyWidjet->resize(500, 100);
     changeKeyWidjet->setReadOnly(true);
     changeKeyWidjet->setWindowModality(Qt::ApplicationModal);
+    changeKeyWidjet->setWindowIcon(style()->standardIcon(QStyle::SP_MessageBoxInformation));
 
 
 // создаём набор горячих клавишь
@@ -460,6 +449,7 @@ QString textEditor::hoKeyList()
 
 void textEditor::on_openFiler_clicked()
 {
+    fileView->refresh();
     fileView->show();
 }
 
@@ -467,7 +457,7 @@ void textEditor::on_openFiler_clicked()
 void textEditor::filerReturnPath(const QString& path)
 {
     QFile openFile(path);
-    if(openFile.open(QIODevice::ReadOnly))
+    if(openFile.open(QIODevice::ReadWrite))
     {
         QTextStream readText(&openFile);
 

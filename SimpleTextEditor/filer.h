@@ -15,6 +15,9 @@ public:
     filer(QWidget *parent = nullptr, const QString& filter = "");
     ~filer();
 
+    void refresh();
+    void retranslateUi();
+
 signals:
     void fileSelected(QString);
 
