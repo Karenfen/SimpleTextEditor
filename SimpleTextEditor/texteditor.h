@@ -33,6 +33,9 @@ private slots:
     void onMenuKeyCliced();
     void onMenuKeyInfo();
 
+    void setLightTheme();
+    void setDarkTheme();
+
 private:
 
     Ui::textEditor *ui;
@@ -48,6 +51,9 @@ private:
     QAction* setKeyQuit;
     QAction* setKeyClose;
     QAction* showKeys;
+    QMenu* menuTheme;
+    QAction* lightTheme;
+    QAction* darkTheme;
     QTranslator* translator;
     std::map<QString, int>hotKeys;
 

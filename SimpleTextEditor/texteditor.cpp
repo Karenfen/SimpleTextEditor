@@ -20,6 +20,7 @@ textEditor::textEditor(QWidget *parent)
 
 
 // создаём меню
+    /* выбор языка */
     menuLeng = new QMenu(ui->menubar);
 
     setRu = new QAction(this);
@@ -30,6 +31,7 @@ textEditor::textEditor(QWidget *parent)
 
     menuLeng->addActions({setRu, setEn});
 
+    /* горячие клавиши */
     menuKey = new QMenu(ui->menubar);
 
     setKeySave = new QAction(this);
@@ -45,8 +47,17 @@ textEditor::textEditor(QWidget *parent)
 
     menuKey->addActions({showKeys, setKeyClose, setKeyOpen, setKeySave, setKeyQuit});
 
+    /* выбор темы */
+    menuTheme = new QMenu(ui->menubar);
+
+    lightTheme = new QAction(this);
+    darkTheme = new QAction(this);
+
+    menuTheme->addActions({lightTheme, darkTheme});
+
     ui->menubar->addMenu(menuLeng);
     ui->menubar->addMenu(menuKey);
+    ui->menubar->addMenu(menuTheme);
 
 
 // устанавливаем коннекты
@@ -57,6 +68,8 @@ textEditor::textEditor(QWidget *parent)
     connect(showKeys, &QAction::triggered, this, &textEditor::onMenuKeyInfo);
     connect(setRu, &QAction::triggered, this, &textEditor::onMenuLangClicked);
     connect(setEn, &QAction::triggered, this, &textEditor::onMenuLangClicked);
+    connect(lightTheme, &QAction::triggered, this, &textEditor::setLightTheme);
+    connect(darkTheme, &QAction::triggered, this, &textEditor::setDarkTheme);
 
 
 // устанавливаем ивент-фильтры
@@ -311,6 +324,56 @@ void textEditor::onMenuKeyInfo()
 }
 
 
+void textEditor::setLightTheme()
+{
+    QFile temeFile(":/themes/light_teme.css");
+
+    if(temeFile.open(QIODevice::ReadOnly))
+    {
+        QString temeSettings{temeFile.readAll()};
+
+        qApp->setStyleSheet(temeSettings);
+
+        temeFile.close();
+    }
+
+
+    setWindowIcon(QIcon(":/images/icon_dark_cat.png"));
+
+    QPixmap pix_bg(":/images/light_background.jpg");
+    QPalette myPalette;
+
+    myPalette.setBrush(QPalette::Background, pix_bg);
+
+    setPalette(myPalette);
+
+}
+
+void textEditor::setDarkTheme()
+{
+    QFile temeFile(":/themes/dark_teme.css");
+
+    if(temeFile.open(QIODevice::ReadOnly))
+    {
+        QString temeSettings{temeFile.readAll()};
+
+        qApp->setStyleSheet(temeSettings);
+
+        temeFile.close();
+    }
+
+    setWindowIcon(QIcon(":/images/icon_light_cat.png"));
+
+    QPixmap pix_bg(":/images/dark_background.jpg");
+    QPalette myPalette;
+
+    myPalette.setBrush(QPalette::Background, pix_bg);
+
+    setPalette(myPalette);
+
+}
+
+
 void textEditor::setText()
 {
     help_widget->setWindowTitle(tr("Справка"));
@@ -330,30 +393,24 @@ void textEditor::setText()
     setKeyClose->setText(tr("закрыть документ не сохраняя"));
     changeKeyWidjet->setPlainText(tr("нажмите CTRL + клавишу для замены"));
     showKeys->setText(tr("посмотреть горячие клавиши"));
+    menuTheme->setTitle(tr("оформление"));
+    lightTheme->setText(tr("светлая тема"));
+    darkTheme->setText(tr("тёмная тема"));
+    menuTheme->setToolTip(tr("нажмите для смены темы оформления"));
 }
 
 void textEditor::personalization()
 {
+    setLightTheme();
+
     currentFilePath = "";
-
-
- // настраиваем главное окно
-
-    setWindowIcon(QIcon(":/images/icon.png"));
-
-    QPixmap pix_bg(":/images/bg.jpg");
-    QPalette myPalette;
-
-    myPalette.setBrush(QPalette::Background, pix_bg);
-
-    setPalette(myPalette);
 
 
 // настраиваем окно справки
 
-    help_widget->setWindowIcon(QIcon(":/images/icon2.png"));
+    help_widget->setWindowIcon(QIcon(":/images/icon_question.png"));
 
-    QFile fileTXT(":/docs/help.txt");
+    QFile fileTXT(":/texts/help.txt");
 
     if(fileTXT.open(QIODevice::ReadOnly))
     {
@@ -366,7 +423,6 @@ void textEditor::personalization()
 
 // настраиваем меню
 
-    menuLeng->resize(100, 20);
     setRu->setText("Русский");
     setEn->setText("English");
 

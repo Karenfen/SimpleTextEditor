@@ -1,13 +1,13 @@
 <RCC>
     <qresource prefix="/">
+        <file>images/dark_background.jpg</file>
+        <file>images/icon_dark_cat.png</file>
+        <file>images/icon_light_cat.png</file>
+        <file>images/icon_question.png</file>
+        <file>images/light_background.jpg</file>
+        <file>texts/help.txt</file>
         <file>QtLanguage_en.qm</file>
-    </qresource>
-    <qresource prefix="/images">
-        <file>bg.jpg</file>
-        <file>icon.png</file>
-        <file>icon2.png</file>
-    </qresource>
-    <qresource prefix="/docs">
-        <file>help.txt</file>
+        <file>themes/dark_teme.css</file>
+        <file>themes/light_teme.css</file>
     </qresource>
 </RCC>
