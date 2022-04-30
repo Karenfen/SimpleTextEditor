@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QTranslator>
+#include <memory>
+#include "filer.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -36,6 +38,9 @@ private slots:
     void setLightTheme();
     void setDarkTheme();
 
+    void on_openFiler_clicked();
+    void filerReturnPath(const QString& path);
+
 private:
 
     Ui::textEditor *ui;
@@ -56,6 +61,7 @@ private:
     QAction* darkTheme;
     QTranslator* translator;
     std::map<QString, int>hotKeys;
+    std::shared_ptr<filer> fileView;
 
     QString hoKeyList();
 

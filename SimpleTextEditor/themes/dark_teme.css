@@ -1,4 +1,8 @@
-QPushButton { 
+QMainWindow {
+	background-image: url(:/images/dark_background.jpg);
+}
+
+textEditor QPushButton { 
 	background-color: #0B2161;
 	color: #E0F2F7; 
 	border-radius: 6px ;
@@ -6,53 +10,62 @@ QPushButton {
 	font: 12px ;
 }
 
-QPushButton:hover { 
+textEditor QPushButton:hover { 
 	background-color: #2E2E2E;
 }
 
-QPushButton:hover:pressed { 
+textEditor QPushButton:hover:pressed { 
 	background-color: #086A87; 
 }
 
-QMenuBar {
+textEditor QMenuBar {
 	background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                                       stop:0 #0B2161, stop:1 #2E2E2E);
 	color: #E0F2F7;
 	spacing: 3px ;
 }
 
-QMenuBar::item{
+textEditor QMenuBar::item{
 	border-radius: 6px ;
 	padding: 5px ;
 }
 
-QMenuBar::item:selected, QMenuBar::item:pressed { 
+textEditor QMenuBar::item:selected, QMenuBar::item:pressed { 
     background: #2E2E2E;
 }
 
-QMenu { 
+textEditor QMenu { 
 	background-color: #0B2161;
 	color: #E0F2F7; 
 }
 
-QMenu::item{
+textEditor QMenu::item{
 	border-radius: 6px ;
 	padding: 5px ;
 }
 
-QMenu::item:selected {
+textEditor QMenu::item:selected {
 	 background: #2E2E2E;
 }
 
-QMenu::item:pressed {
+textEditor QMenu::item:pressed {
 	 background: #086A87;
 }
 
-QStatusBar { 
+textEditor QStatusBar { 
 	color: #E0F2F7; 
 }
 
 QPlainTextEdit { 
+	background-color: #2E2E2E;
+	color: #FFFFFF; 
+}
+
+textEditor QMessageBox {
+	background-color: #2E2E2E;
+	color: #FFFFFF; 
+}
+textEditor QMessageBox QLabel {
 	background-color: #2E2E2E;
 	color: #FFFFFF; 
 }
