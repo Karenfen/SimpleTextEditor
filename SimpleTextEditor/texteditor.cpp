@@ -5,6 +5,11 @@
 #include <QFileDialog>
 #include <QApplication>
 #include <QMessageBox>
+#include <QtPrintSupport/QPrintDialog>
+#include <QtPrintSupport/QPrinter>
+#include <QPlainTextEdit>
+#include <QMdiSubWindow>
+#include <QToolBar>
 
 
 
@@ -17,7 +22,12 @@ textEditor::textEditor(QWidget *parent)
     translator = new QTranslator;
     help_widget = new QPlainTextEdit;
     changeKeyWidjet = new QPlainTextEdit;
+    plaintext = new QPlainTextEdit(this);
     fileView = std::make_shared<filer>(nullptr, ".txt");
+    ui->dockWidget->setWidget(fileView.get());
+    ui->mdiArea->addSubWindow(plaintext);
+
+
 
 
 // создаём меню
@@ -56,10 +66,37 @@ textEditor::textEditor(QWidget *parent)
 
     menuTheme->addActions({lightTheme, darkTheme});
 
+    help = new QAction(this);
+
     ui->menubar->addMenu(menuLeng);
     ui->menubar->addMenu(menuKey);
     ui->menubar->addMenu(menuTheme);
+    ui->menubar->addAction(help);
 
+// добавляем tool-bar
+    QToolBar* toolbar = new QToolBar{};
+
+    toolbar->addAction(style()->standardIcon(QStyle::SP_DialogSaveButton), tr("сохранить как..."), [this] {
+        on_pushButton_save_clicked();
+    });
+
+    toolbar->addAction(style()->standardIcon(QStyle::SP_FileIcon), tr("создать новый файл"), [this] {
+        plaintext = new QPlainTextEdit(this);
+        ui->mdiArea->addSubWindow(plaintext);
+        plaintext->showMaximized();
+    });
+
+    toolbar->addAction(QPixmap(":/images/Print.ico"), tr("печать документа"), [this] {
+        textEditor::on_print_clicked();
+    });
+
+    toolbar->addSeparator();
+
+    toolbar->addAction(style()->standardIcon(QStyle::SP_DirIcon), tr("открыть/закрыть проводник"), [this] {
+        on_showFiles_clicked();
+    });
+
+    addToolBar(toolbar);
 
 // устанавливаем коннекты
     connect(setKeySave, &QAction::triggered, this, &textEditor::onMenuKeyCliced);
@@ -72,6 +109,7 @@ textEditor::textEditor(QWidget *parent)
     connect(lightTheme, &QAction::triggered, this, &textEditor::setLightTheme);
     connect(darkTheme, &QAction::triggered, this, &textEditor::setDarkTheme);
     connect(fileView.get(), SIGNAL(fileSelected(QString)), this, SLOT(filerReturnPath(QString)));
+    connect(help, &QAction::triggered, this, &textEditor::on_pushButton_help_clicked);
 
 // устанавливаем ивент-фильтры
     centralWidget()->installEventFilter(this);
@@ -88,105 +126,105 @@ textEditor::~textEditor()
 
 void textEditor::on_pushButton_help_clicked()
 {
-    help_widget->show();
-}
-
-
-void textEditor::on_pushButton_open_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, tr("выберите файл"),
-                                                    QDir::homePath(),
-                                                    tr("текст (*.txt)"));
-    QFile openFile(fileName);
-    if(openFile.open(QIODevice::ReadOnly))
+    if(help_widget->isHidden())
+        help_widget->show();
+    if(help_widget->isTopLevel())
     {
-        QTextStream readText(&openFile);
-
-        ui->plainTextEdit->setPlainText(readText.readAll());
-
-        openFile.close();
-
-        currentFilePath = fileName;
-        setStatusTip(fileName);
-        ui->plainTextEdit->setReadOnly(false);
+        help_widget->close();
+        help_widget->show();
     }
 }
 
 
 void textEditor::on_pushButton_save_clicked()
 {
-    if(!ui->plainTextEdit->isReadOnly())
+    if(ui->mdiArea->subWindowList().empty())
+        return;
+
+    plaintext = qobject_cast<QPlainTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+
+    if(plaintext->isReadOnly())
+        return;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("выберите файл"),
+                                                    QDir::homePath(),
+                                                    tr("текст (*.txt)"));
+    QFile openFile(fileName);
+
+    if(openFile.open(QIODevice::WriteOnly))
     {
-        QString fileName = QFileDialog::getSaveFileName(this, tr("выберите файл"),
-                                                        QDir::homePath(),
-                                                        tr("текст (*.txt)"));
-        QFile openFile(fileName);
+        QTextStream writeText(&openFile);
+        QString text = plaintext->toPlainText();
 
-        if(openFile.open(QIODevice::WriteOnly))
-        {
-            QTextStream writeText(&openFile);
-            QString text = ui->plainTextEdit->toPlainText();
+        openFile.write(text.toLocal8Bit(), text.length());
 
-            openFile.write(text.toLocal8Bit(), text.length());
-
-            openFile.close();
-
-            currentFilePath = fileName;
-            setStatusTip(fileName);
-        }
+        openFile.close();
+        plaintext->setWindowTitle(fileName);
     }
+
 }
 
 
 void textEditor::on_pushButton_quickeSave_clicked()
 {
-    if(!ui->plainTextEdit->isReadOnly())
+    if(ui->mdiArea->subWindowList().empty())
+        return;
+
+    plaintext = qobject_cast<QPlainTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+
+    if(plaintext->isReadOnly() | plaintext->windowTitle().isEmpty())
+        return;
+
+    QFile openFile(plaintext->windowTitle());
+
+    if(openFile.open(QIODevice::WriteOnly))
     {
-        if(!currentFilePath.isEmpty())
-        {
-            QFile openFile(currentFilePath);
-            if(openFile.open(QIODevice::WriteOnly))
-            {
-                QTextStream writeText(&openFile);
-                QString text = ui->plainTextEdit->toPlainText();
+        QTextStream writeText(&openFile);
+        QString text = plaintext->toPlainText();
 
-                openFile.write(text.toLocal8Bit(), text.length());
+        openFile.write(text.toLocal8Bit(), text.length());
 
-                openFile.close();
-            }
-        }
+        openFile.close();
     }
+
 }
 
 
 void textEditor::on_pushButton_close_clicked()
 {
-    ui->plainTextEdit->clear();
-    currentFilePath = "";
-    setStatusTip(tr("новый файл"));
-    ui->plainTextEdit->setReadOnly(false);
+    if(ui->mdiArea->subWindowList().empty())
+        return;
+
+    plaintext = qobject_cast<QPlainTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+    ui->mdiArea->closeActiveSubWindow();
+
+    delete plaintext;
 }
 
 
 void textEditor::on_pushButton_open_read_only_clicked()
 {
+
+
     QString fileName = QFileDialog::getOpenFileName(this, tr("выберите файл"),
                                                     QDir::homePath(),
                                                     tr("текст (*.txt)"));
     QFile openFile(fileName);
     if(openFile.open(QIODevice::ReadOnly))
     {
+        plaintext = new QPlainTextEdit(this);
+
         QTextStream readText(&openFile);
 
-        ui->plainTextEdit->setPlainText(readText.readAll());
+        plaintext->setPlainText(readText.readAll());
 
         openFile.close();
 
-        currentFilePath = fileName;
-        setStatusTip(fileName);
-
-        ui->plainTextEdit->setReadOnly(true);
-    }
+        plaintext->setReadOnly(true);
+        plaintext->setWindowTitle(fileName);
+        ui->mdiArea->addSubWindow(plaintext);
+        plaintext->showMaximized();
+    }  
 }
 
 
@@ -246,11 +284,6 @@ bool textEditor::eventFilter(QObject *obj, QEvent *event)
                     textEditor::on_pushButton_save_clicked();
                     return true;
                 }
-                if(keyEvent->key() == hotKeys.at("open"))
-                {
-                    on_pushButton_open_clicked();
-                    return true;
-                }
                 if(keyEvent->key() == hotKeys.at("close"))
 
                 {
@@ -260,6 +293,11 @@ bool textEditor::eventFilter(QObject *obj, QEvent *event)
                 if(keyEvent->key() == hotKeys.at("quit"))
                 {
                     qApp->exit();
+                    return true;
+                }
+                if(keyEvent->key() == hotKeys.at("print"))
+                {
+                    on_print_clicked();
                     return true;
                 }
             }
@@ -365,26 +403,29 @@ void textEditor::setDarkTheme()
 void textEditor::setText()
 {
     help_widget->setWindowTitle(tr("Справка"));
+
     ui->pushButton_close->setToolTip(tr("закрыть текущий файл без сохранения изменений"));
-    ui->pushButton_help->setToolTip(tr("открыть текст справки по приложению"));
-    ui->pushButton_open->setToolTip(tr("открыть файл для редактирования"));
     ui->pushButton_open_read_only->setToolTip(tr("открыть файл только для просмотра"));
     ui->pushButton_quickeSave->setToolTip(tr("сохранить изменения в открытом файле"));
-    ui->pushButton_save->setToolTip(tr("выбрать файл для сохранения изменений"));
-    menuLeng->setTitle(tr("Язык"));
     menuLeng->setToolTip(tr("установить язык интерфейса"));
-    menuKey->setTitle(tr("корячие клавиши"));
     menuKey->setToolTip(tr("нажмите для замены комбинации клавишь"));
+    menuTheme->setToolTip(tr("нажмите для смены темы оформления"));
+    help->setToolTip(tr("открыть текст справки по приложению"));
+
+    menuLeng->setTitle(tr("Язык"));
+    menuKey->setTitle(tr("корячие клавиши"));
+    menuTheme->setTitle(tr("оформление"));
+
     setKeySave->setText(tr("сохранить как..."));
     setKeyOpen->setText(tr("открыть новый документ"));
     setKeyQuit->setText(tr("закрыть программу"));
     setKeyClose->setText(tr("закрыть документ не сохраняя"));
-    changeKeyWidjet->setPlainText(tr("нажмите CTRL + клавишу для замены"));
     showKeys->setText(tr("посмотреть горячие клавиши"));
-    menuTheme->setTitle(tr("оформление"));
     lightTheme->setText(tr("светлая тема"));
     darkTheme->setText(tr("тёмная тема"));
-    menuTheme->setToolTip(tr("нажмите для смены темы оформления"));
+    help->setText(tr("справка"));
+    changeKeyWidjet->setPlainText(tr("нажмите CTRL + клавишу для замены"));
+
 }
 
 void textEditor::personalization()
@@ -393,8 +434,8 @@ void textEditor::personalization()
 
     resize(860, 480);
 
-    currentFilePath = "";
-
+    ui->mdiArea->setBackground(Qt::NoBrush);
+    plaintext->showMaximized();
 
 // настраиваем окно справки
 
@@ -429,7 +470,12 @@ void textEditor::personalization()
     hotKeys["open"] = Qt::Key::Key_O;
     hotKeys["close"] = Qt::Key::Key_N;
     hotKeys["quit"] = Qt::Key::Key_Q;
+    hotKeys["print"] = Qt::Key::Key_P;
 
+// устанавливаем иконки для кнопок
+    ui->pushButton_close->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
+    ui->pushButton_quickeSave->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    ui->pushButton_open_read_only->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
 }
 
 QString textEditor::hoKeyList()
@@ -447,27 +493,51 @@ QString textEditor::hoKeyList()
     return text;
 }
 
-void textEditor::on_openFiler_clicked()
-{
-    fileView->refresh();
-    fileView->show();
-}
-
 
 void textEditor::filerReturnPath(const QString& path)
 {
+    plaintext = new QPlainTextEdit(this);
+    ui->mdiArea->addSubWindow(plaintext);
+    plaintext->showMaximized();
+
     QFile openFile(path);
     if(openFile.open(QIODevice::ReadWrite))
     {
         QTextStream readText(&openFile);
 
-        ui->plainTextEdit->setPlainText(readText.readAll());
+        plaintext->setPlainText(readText.readAll());
 
         openFile.close();
 
-        currentFilePath = path;
-        setStatusTip(path);
-        ui->plainTextEdit->setReadOnly(false);
+        plaintext->setReadOnly(false);
+        plaintext->setWindowTitle(path);
     }
+
+    fileView->refresh();
+}
+
+
+void textEditor::on_print_clicked()
+{
+    if(ui->mdiArea->subWindowList().empty())
+        return;
+
+    plaintext = qobject_cast<QPlainTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+
+    QPrinter printer;
+    QPrintDialog dialog(&printer, this);
+
+    if(dialog.exec() == QDialog::Accepted)
+       plaintext->print(&printer);
+
+}
+
+
+void textEditor::on_showFiles_clicked()
+{
+    if(ui->dockWidget->isHidden())
+        ui->dockWidget->show();
+    else
+        ui->dockWidget->hide();
 }
 

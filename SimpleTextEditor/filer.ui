@@ -27,9 +27,9 @@
       <widget class="QLineEdit" name="currentPath"/>
      </item>
      <item>
-      <widget class="QPushButton" name="setPath">
+      <widget class="QPushButton" name="copyPath">
        <property name="text">
-        <string>Перейти</string>
+        <string>копировать</string>
        </property>
       </widget>
      </item>
@@ -37,13 +37,6 @@
    </item>
    <item row="2" column="0">
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="1" column="3">
-      <widget class="QPushButton" name="quit">
-       <property name="text">
-        <string>отмена</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="2" colspan="2">
       <widget class="QComboBox" name="comboBoxType"/>
      </item>
@@ -53,7 +46,7 @@
      <item row="1" column="2">
       <widget class="QPushButton" name="open">
        <property name="text">
-        <string>открыть</string>
+        <string>открыть / создать</string>
        </property>
       </widget>
      </item>

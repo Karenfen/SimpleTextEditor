@@ -22,12 +22,11 @@ signals:
     void fileSelected(QString);
 
 private slots:
-    void on_quit_clicked();
+
     void selectionChanged();
 
     void on_open_clicked();
-
-    void on_setPath_clicked();
+    void on_copyPath_clicked();
 
 private:
     Ui_Form* ui;
