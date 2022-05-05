@@ -9,5 +9,6 @@
         <file>QtLanguage_en.qm</file>
         <file>themes/dark_teme.css</file>
         <file>themes/light_teme.css</file>
+        <file>images/Print.ico</file>
     </qresource>
 </RCC>

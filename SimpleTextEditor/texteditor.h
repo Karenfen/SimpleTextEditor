@@ -25,7 +25,6 @@ public:
 private slots:
 
     void on_pushButton_help_clicked();
-    void on_pushButton_open_clicked();
     void on_pushButton_save_clicked();
     void on_pushButton_quickeSave_clicked();
     void on_pushButton_close_clicked();
@@ -38,18 +37,22 @@ private slots:
     void setLightTheme();
     void setDarkTheme();
 
-    void on_openFiler_clicked();
     void filerReturnPath(const QString& path);
+
+    void on_print_clicked();
+
+    void on_showFiles_clicked();
 
 private:
 
     Ui::textEditor *ui;
-    QString currentFilePath;
     QPlainTextEdit* help_widget;
     QPlainTextEdit* changeKeyWidjet;
+    QPlainTextEdit* plaintext;
     QMenu* menuLeng;
     QAction* setRu;
     QAction* setEn;
+    QAction* help;
     QMenu* menuKey;
     QAction* setKeySave;
     QAction* setKeyOpen;

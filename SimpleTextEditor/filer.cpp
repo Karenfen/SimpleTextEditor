@@ -1,4 +1,5 @@
 #include "filer.h"
+#include <QClipboard>
 
 
 filer::filer(QWidget *parent, const QString& filter) :
@@ -12,8 +13,8 @@ filer::filer(QWidget *parent, const QString& filter) :
     m_model = std::make_shared<QDirModel>(this);
     ui->treeView->setModel(m_model.get());
 
-    ui->treeView->setColumnWidth(0, 400);
-    resize(860, 480);
+    ui->treeView->setColumnWidth(0, 300);
+//    resize(860, 480);
     setWindowModality(Qt::WindowModality::ApplicationModal);
     setWindowIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
     setWindowTitle(tr("Проводник"));
@@ -26,22 +27,18 @@ filer::~filer()
     delete ui;
 }
 
+
 void filer::refresh()
 {
     m_model->refresh();
 }
+
 
 void filer::retranslateUi()
 {
     ui->retranslateUi(this);
 }
 
-
-void filer::on_quit_clicked()
-{
-    close();
-    ui->fileName->clear();
-}
 
 void filer::selectionChanged()
 {
@@ -54,30 +51,31 @@ void filer::selectionChanged()
 }
 
 
-
-
 void filer::on_open_clicked()
 {
+    if(!ui->treeView->selectionModel()->hasSelection())
+        return;
+
     QString path;
     QModelIndex index = ui->treeView->selectionModel()->currentIndex();
 
     if(!m_model->isDir(index))
     {
         path = ui->currentPath->text();
+        emit fileSelected(path);
     }
-    else
+    else if(m_model->isDir(index) & !ui->fileName->text().isEmpty())
     {
         path = ui->currentPath->text() + "/" + ui->fileName->text() + ui->comboBoxType->currentText();
+        emit fileSelected(path);
     }
 
-    emit fileSelected(path);
-    close();
-    ui->fileName->clear();
 }
 
 
-void filer::on_setPath_clicked()
+void filer::on_copyPath_clicked()
 {
-    // пока не понял как это реализовать
+    QClipboard* clipboard = qApp->clipboard();
+    clipboard->setText(ui->currentPath->text());
 }
 
