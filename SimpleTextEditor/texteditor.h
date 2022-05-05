@@ -50,21 +50,12 @@ private:
     QPlainTextEdit* changeKeyWidjet;
     QPlainTextEdit* plaintext;
     QMenu* menuLeng;
-    QAction* setRu;
-    QAction* setEn;
-    QAction* help;
     QMenu* menuKey;
-    QAction* setKeySave;
-    QAction* setKeyOpen;
-    QAction* setKeyQuit;
-    QAction* setKeyClose;
-    QAction* showKeys;
     QMenu* menuTheme;
-    QAction* lightTheme;
-    QAction* darkTheme;
     QTranslator* translator;
     std::map<QString, int>hotKeys;
     std::shared_ptr<filer> fileView;
+    std::map<QString, QAction*> m_actions;
 
     QString hoKeyList();
 
