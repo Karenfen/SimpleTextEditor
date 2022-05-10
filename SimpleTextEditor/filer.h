@@ -29,8 +29,8 @@ private slots:
     void on_copyPath_clicked();
 
 private:
-    Ui_Form* ui;
-    std::shared_ptr<QDirModel> m_model;
+    std::unique_ptr<Ui_Form> ui;
+    std::unique_ptr<QDirModel> m_model;
 
 };
 

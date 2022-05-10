@@ -3,17 +3,17 @@
 
 
 filer::filer(QWidget *parent, const QString& filter) :
-    QWidget(parent), ui(new Ui_Form)
+    QWidget(parent), ui(new Ui_Form), m_model(new QDirModel)
 {
     ui->setupUi(this);
 
     ui->comboBoxType->addItem(filter);
     ui->comboBoxType->setItemText(0, filter);
 
-    m_model = std::make_shared<QDirModel>(this);
     ui->treeView->setModel(m_model.get());
 
     ui->treeView->setColumnWidth(0, 300);
+
 //    resize(860, 480);
     setWindowModality(Qt::WindowModality::ApplicationModal);
     setWindowIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
@@ -24,7 +24,7 @@ filer::filer(QWidget *parent, const QString& filter) :
 
 filer::~filer()
 {
-    delete ui;
+
 }
 
 
