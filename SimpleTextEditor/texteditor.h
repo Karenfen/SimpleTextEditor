@@ -34,8 +34,7 @@ private slots:
     void onMenuKeyCliced();
     void onMenuKeyInfo();
 
-    void setLightTheme();
-    void setDarkTheme();
+    void setTheme();
 
     void filerReturnPath(const QString& path);
 

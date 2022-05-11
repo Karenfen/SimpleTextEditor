@@ -50,8 +50,9 @@ textEditor::textEditor(QWidget *parent)
 
     m_actions["lightTheme"] = new QAction(this);
     m_actions["darkTheme"] = new QAction(this);
+    m_actions["default"] = new QAction(this);
 
-    menuTheme->addActions({m_actions.at("lightTheme"), m_actions.at("darkTheme")});
+    menuTheme->addActions({m_actions.at("lightTheme"), m_actions.at("darkTheme"), m_actions.at("default")});
 
     m_actions["help"] = new QAction(this);
 
@@ -83,8 +84,9 @@ textEditor::textEditor(QWidget *parent)
     connect(m_actions.at("setRu"), &QAction::triggered, this, &textEditor::onMenuLangClicked);
     connect(m_actions.at("setEn"), &QAction::triggered, this, &textEditor::onMenuLangClicked);
 
-    connect(m_actions.at("lightTheme"), &QAction::triggered, this, &textEditor::setLightTheme);
-    connect(m_actions.at("darkTheme"), &QAction::triggered, this, &textEditor::setDarkTheme);
+    connect(m_actions.at("lightTheme"), &QAction::triggered, this, &textEditor::setTheme);
+    connect(m_actions.at("darkTheme"), &QAction::triggered, this, &textEditor::setTheme);
+    connect(m_actions.at("default"), &QAction::triggered, this, &textEditor::setTheme);
 
     connect(fileView.get(), SIGNAL(fileSelected(QString)), this, SLOT(filerReturnPath(QString)));
 
@@ -356,26 +358,17 @@ void textEditor::onMenuKeyInfo()
 }
 
 
-void textEditor::setLightTheme()
+void textEditor::setTheme()
 {
-    QFile temeFile(":/themes/light_teme.css");
+    QString path{ sender()->objectName() };
 
-    if(temeFile.open(QIODevice::ReadOnly))
+    if(path == "default")
     {
-        QString temeSettings{temeFile.readAll()};
-
-        qApp->setStyleSheet(temeSettings);
-        temeFile.close();
+        qApp->setStyleSheet("");
+        return;
     }
 
-
-    setWindowIcon(QIcon(":/images/icon_dark_cat.png"));
-
-}
-
-void textEditor::setDarkTheme()
-{
-    QFile temeFile(":/themes/dark_teme.css");
+    QFile temeFile(path);
 
     if(temeFile.open(QIODevice::ReadOnly))
     {
@@ -385,9 +378,6 @@ void textEditor::setDarkTheme()
 
         temeFile.close();
     }
-
-    setWindowIcon(QIcon(":/images/icon_light_cat.png"));
-
 }
 
 
@@ -414,6 +404,7 @@ void textEditor::setText()
     m_actions.at("showKeys")->setText(tr("посмотреть горячие клавиши"));
     m_actions.at("lightTheme")->setText(tr("светлая тема"));
     m_actions.at("darkTheme")->setText(tr("тёмная тема"));
+    m_actions.at("default")->setText(tr("стандартная тема"));
     m_actions.at("help")->setText(tr("справка"));
     changeKeyWidjet->setPlainText(tr("нажмите CTRL + клавишу для замены"));
 
@@ -429,9 +420,9 @@ void textEditor::personalization()
     ui->dockWidget->setWidget(fileView.get());
     ui->mdiArea->addSubWindow(plaintext);
 
-    setLightTheme();
-
     resize(860, 480);
+
+    setWindowIcon(QIcon(":/images/icon_cat.png"));
 
     ui->mdiArea->setBackground(Qt::NoBrush);
     plaintext->showMaximized();
@@ -463,6 +454,10 @@ void textEditor::personalization()
     m_actions.at("setKeyQuit")->setObjectName("quit");
     m_actions.at("setKeyClose")->setObjectName("close");
 
+    m_actions.at("lightTheme")->setObjectName(":/themes/light_teme.css");
+    m_actions.at("darkTheme")->setObjectName(":/themes/dark_teme.css");
+    m_actions.at("default")->setObjectName("default");
+
 // настраиваем окно подсказки
 
     changeKeyWidjet->resize(500, 100);
@@ -488,6 +483,10 @@ void textEditor::personalization()
     m_actions.at("bar_nfile")->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
     m_actions.at("bar_print")->setIcon(QPixmap(":/images/Print.ico"));
     m_actions.at("bar_expl")->setIcon(style()->standardIcon(QStyle::SP_DirIcon));
+
+// применяем тему
+    //m_actions.at("lightTheme")->triggered();
+
 }
 
 QString textEditor::hoKeyList()
