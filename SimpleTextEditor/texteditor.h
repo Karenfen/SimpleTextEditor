@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTranslator>
 #include <memory>
+#include <QTextCharFormat>
+
 #include "filer.h"
 
 
@@ -12,6 +14,7 @@ namespace Ui { class textEditor; }
 QT_END_NAMESPACE
 
 class QPlainTextEdit;
+class QTextEdit;
 
 
 class textEditor : public QMainWindow
@@ -23,38 +26,46 @@ public:
     ~textEditor();
 
 private slots:
-
-    void on_pushButton_help_clicked();
+// кнопки
     void on_pushButton_save_clicked();
-    void on_pushButton_quickeSave_clicked();
     void on_pushButton_close_clicked();
     void on_pushButton_open_read_only_clicked();
-
+// меню
     void onMenuLangClicked();
     void onMenuKeyCliced();
     void onMenuKeyInfo();
-
+    void on_pushButton_help_clicked();
     void setTheme();
-
+// проводгик
     void filerReturnPath(const QString& path);
-
+// туллбар
     void on_print_clicked();
-
+    void on_pushButton_quickeSave_clicked();
     void on_showFiles_clicked();
+    void copy_past_font();
 
 private:
 
-    Ui::textEditor *ui;
-    QPlainTextEdit* help_widget;
-    QPlainTextEdit* changeKeyWidjet;
-    QPlainTextEdit* plaintext;
+    std::unique_ptr<Ui::textEditor> ui;
+    std::unique_ptr<QPlainTextEdit> help_widget;
+    std::unique_ptr<QPlainTextEdit> changeKeyWidjet;
+    std::unique_ptr<filer> fileView;
+
+    QTextEdit* plaintext;
+
     QMenu* menuLeng;
     QMenu* menuKey;
     QMenu* menuTheme;
+
     QTranslator* translator;
+
+
     std::map<QString, int>hotKeys;
-    std::shared_ptr<filer> fileView;
     std::map<QString, QAction*> m_actions;
+
+    QTextCharFormat currentFont;
+
+private:
 
     QString hoKeyList();
 

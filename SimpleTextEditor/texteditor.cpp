@@ -8,22 +8,24 @@
 #include <QtPrintSupport/QPrintDialog>
 #include <QtPrintSupport/QPrinter>
 #include <QPlainTextEdit>
+#include <QTextEdit>
 #include <QMdiSubWindow>
 #include <QToolBar>
 
 
 
 textEditor::textEditor(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::textEditor)
+    : QMainWindow(parent),
+      ui(new Ui::textEditor),
+      help_widget(new QPlainTextEdit),
+      changeKeyWidjet(new QPlainTextEdit),
+      fileView(new filer(nullptr, ".txt"))
+
 {
     ui->setupUi(this);
 
     translator = new QTranslator;
-    help_widget = new QPlainTextEdit;
-    changeKeyWidjet = new QPlainTextEdit;
-    plaintext = new QPlainTextEdit(this);
-    fileView = std::make_shared<filer>(nullptr, ".txt");
+    plaintext = new QTextEdit(this);
 
 // создаём меню
     /* выбор языка */
@@ -68,9 +70,11 @@ textEditor::textEditor(QWidget *parent)
     m_actions["bar_nfile"] =new QAction(this);
     m_actions["bar_print"] = new QAction(this);
     m_actions["bar_expl"] = new QAction(this);
+    m_actions["copy_font"] = new QAction(this);
 
-    toolbar->addActions({m_actions.at("bar_save"), m_actions.at("bar_nfile"), m_actions.at("bar_print"), m_actions.at("bar_expl")});
+    toolbar->addActions({m_actions.at("bar_save"), m_actions.at("bar_nfile"), m_actions.at("bar_print"), m_actions.at("bar_expl"), m_actions.at("copy_font")});
     toolbar->insertSeparator(m_actions.at("bar_expl"));
+    toolbar->insertSeparator(m_actions.at("copy_font"));
 
     addToolBar(toolbar);
 
@@ -94,12 +98,13 @@ textEditor::textEditor(QWidget *parent)
 
     connect(m_actions.at("bar_save"), &QAction::triggered, this, &textEditor::on_pushButton_save_clicked);
     connect(m_actions.at("bar_nfile"), &QAction::triggered, this, [this] {
-                plaintext = new QPlainTextEdit(this);
+                plaintext = new QTextEdit(this);
                 ui->mdiArea->addSubWindow(plaintext);
                 plaintext->showMaximized();
             });
     connect(m_actions.at("bar_print"), &QAction::triggered, this, &textEditor::on_print_clicked);
     connect(m_actions.at("bar_expl"), &QAction::triggered, this, &textEditor::on_showFiles_clicked);
+    connect(m_actions.at("copy_font"), &QAction::triggered, this, &textEditor::copy_past_font);
 
 // устанавливаем ивент-фильтры
     centralWidget()->installEventFilter(this);
@@ -112,11 +117,11 @@ textEditor::~textEditor()
     m_actions.clear();
     hotKeys.clear();
 
-    delete ui;
-    delete help_widget;
-    delete changeKeyWidjet;
+    delete translator;
 }
 
+
+// меню
 void textEditor::on_pushButton_help_clicked()
 {
     if(help_widget->isHidden())
@@ -128,13 +133,94 @@ void textEditor::on_pushButton_help_clicked()
     }
 }
 
+void textEditor::onMenuLangClicked()
+{
+    QObject* obj = sender();
 
+    if(obj->objectName() == "setRu")
+    {
+        qApp->removeTranslator(translator);
+    }
+    else if(obj->objectName() == "setEn")
+    {
+        translator->load(":/QtLanguage_en");
+        qApp->installTranslator(translator);
+    }
+
+    ui->retranslateUi(this);
+    fileView->retranslateUi();
+    setText();
+
+}
+
+void textEditor::onMenuKeyCliced()
+{
+    QObject* obj = sender();
+    QString objName = obj->objectName();
+
+    if(objName == "save")
+    {
+        changeKeyWidjet->setObjectName("save");
+        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"сохраение\""));
+    }
+    else if(objName == "close")
+    {
+        changeKeyWidjet->setObjectName("close");
+        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"закрыть документ\""));
+    }
+    else if(objName == "quit")
+    {
+        changeKeyWidjet->setObjectName("quit");
+        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"закрыть программу\""));
+    }
+    else if(objName == "open")
+    {
+        changeKeyWidjet->setObjectName("open");
+        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"открыть файл\""));
+    }
+
+    changeKeyWidjet->show();
+}
+
+void textEditor::onMenuKeyInfo()
+{
+    QMessageBox::information(this, tr("горячие клавиши"), hoKeyList());
+}
+
+void textEditor::setTheme()
+{
+    QString path{ sender()->objectName() };
+
+    if(path == "default")
+    {
+        qApp->setStyleSheet("");
+        return;
+    }
+
+    QFile temeFile(path);
+
+    if(temeFile.open(QIODevice::ReadOnly))
+    {
+        QString temeSettings{temeFile.readAll()};
+
+        qApp->setStyleSheet(temeSettings);
+
+        temeFile.close();
+    }
+}
+
+
+
+// туллбар
 void textEditor::on_pushButton_save_clicked()
 {
     if(ui->mdiArea->subWindowList().empty())
         return;
 
-    plaintext = qobject_cast<QPlainTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+
+    if(!plaintext)
+        return;
 
     if(plaintext->isReadOnly())
         return;
@@ -157,13 +243,64 @@ void textEditor::on_pushButton_save_clicked()
 
 }
 
+void textEditor::on_print_clicked()
+{
+    if(ui->mdiArea->subWindowList().empty())
+        return;
 
+    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+
+    if(!plaintext)
+        return;
+
+    QPrinter printer;
+    QPrintDialog dialog(&printer, this);
+
+    if(dialog.exec() == QDialog::Accepted)
+       plaintext->print(&printer);
+
+}
+
+void textEditor::on_showFiles_clicked()
+{
+    if(ui->dockWidget->isHidden())
+        ui->dockWidget->show();
+    else
+        ui->dockWidget->hide();
+}
+
+void textEditor::copy_past_font()
+{
+    if(ui->mdiArea->subWindowList().empty())
+        return;
+
+    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+
+    if(!plaintext)
+        return;
+
+    if(!m_actions.at("copy_font")->isChecked())
+    {
+        currentFont = plaintext->textCursor().charFormat();
+    }
+    else
+    {
+        plaintext->textCursor().setCharFormat(currentFont);
+    }
+}
+
+
+
+// кнопки
 void textEditor::on_pushButton_quickeSave_clicked()
 {
     if(ui->mdiArea->subWindowList().empty())
         return;
 
-    plaintext = qobject_cast<QPlainTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+
+    if(!plaintext)
+        return;
 
     if(plaintext->isReadOnly() | plaintext->windowTitle().isEmpty())
         return;
@@ -182,18 +319,20 @@ void textEditor::on_pushButton_quickeSave_clicked()
 
 }
 
-
 void textEditor::on_pushButton_close_clicked()
 {
     if(ui->mdiArea->subWindowList().empty())
         return;
 
-    plaintext = qobject_cast<QPlainTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+
+    if(!plaintext)
+        return;
+
     ui->mdiArea->closeActiveSubWindow();
 
     delete plaintext;
 }
-
 
 void textEditor::on_pushButton_open_read_only_clicked()
 {
@@ -205,7 +344,7 @@ void textEditor::on_pushButton_open_read_only_clicked()
     QFile openFile(fileName);
     if(openFile.open(QIODevice::ReadOnly))
     {
-        plaintext = new QPlainTextEdit(this);
+        plaintext = new QTextEdit(this);
 
         QTextStream readText(&openFile);
 
@@ -221,12 +360,14 @@ void textEditor::on_pushButton_open_read_only_clicked()
 }
 
 
+
+// вильтр
 bool textEditor::eventFilter(QObject *obj, QEvent *event)
 {
 
     if(event->type() == QEvent::KeyRelease)
     {
-        if(obj == changeKeyWidjet)
+        if(obj == changeKeyWidjet.get())
         {
             QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
@@ -301,86 +442,7 @@ bool textEditor::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-void textEditor::onMenuLangClicked()
-{
-    QObject* obj = sender();
-
-    if(obj->objectName() == "setRu")
-    {
-        qApp->removeTranslator(translator);
-    }
-    else if(obj->objectName() == "setEn")
-    {
-        translator->load(":/QtLanguage_en");
-        qApp->installTranslator(translator);
-    }
-
-    ui->retranslateUi(this);
-    fileView->retranslateUi();
-    setText();
-
-}
-
-
-void textEditor::onMenuKeyCliced()
-{
-    QObject* obj = sender();
-    QString objName = obj->objectName();
-
-    if(objName == "save")
-    {
-        changeKeyWidjet->setObjectName("save");
-        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"сохраение\""));
-    }
-    else if(objName == "close")
-    {
-        changeKeyWidjet->setObjectName("close");
-        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"закрыть документ\""));
-    }
-    else if(objName == "quit")
-    {
-        changeKeyWidjet->setObjectName("quit");
-        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"закрыть программу\""));
-    }
-    else if(objName == "open")
-    {
-        changeKeyWidjet->setObjectName("open");
-        changeKeyWidjet->setWindowTitle(tr("Замена горячей клавиши \"открыть файл\""));
-    }
-
-    changeKeyWidjet->show();
-}
-
-
-void textEditor::onMenuKeyInfo()
-{
-    QMessageBox::information(this, tr("горячие клавиши"), hoKeyList());
-}
-
-
-void textEditor::setTheme()
-{
-    QString path{ sender()->objectName() };
-
-    if(path == "default")
-    {
-        qApp->setStyleSheet("");
-        return;
-    }
-
-    QFile temeFile(path);
-
-    if(temeFile.open(QIODevice::ReadOnly))
-    {
-        QString temeSettings{temeFile.readAll()};
-
-        qApp->setStyleSheet(temeSettings);
-
-        temeFile.close();
-    }
-}
-
-
+// функции
 void textEditor::setText()
 {
     help_widget->setWindowTitle(tr("Справка"));
@@ -412,8 +474,8 @@ void textEditor::setText()
     m_actions.at("bar_nfile")->setText(tr("создать новый файл"));
     m_actions.at("bar_print")->setText(tr("печать документа"));
     m_actions.at("bar_expl")->setText(tr("открыть/закрыть проводник"));
+    m_actions.at("copy_font")->setText(tr("форматирование по образцу"));
 }
-
 
 void textEditor::personalization()
 {
@@ -483,10 +545,9 @@ void textEditor::personalization()
     m_actions.at("bar_nfile")->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
     m_actions.at("bar_print")->setIcon(QPixmap(":/images/Print.ico"));
     m_actions.at("bar_expl")->setIcon(style()->standardIcon(QStyle::SP_DirIcon));
+    m_actions.at("copy_font")->setIcon(style()->standardIcon(QStyle::SP_DialogResetButton));
 
-// применяем тему
-    //m_actions.at("lightTheme")->triggered();
-
+    m_actions.at("copy_font")->setCheckable(true);
 }
 
 QString textEditor::hoKeyList()
@@ -505,9 +566,10 @@ QString textEditor::hoKeyList()
 }
 
 
+
 void textEditor::filerReturnPath(const QString& path)
 {
-    plaintext = new QPlainTextEdit(this);
+    plaintext = new QTextEdit(this);
     ui->mdiArea->addSubWindow(plaintext);
     plaintext->showMaximized();
 
@@ -527,28 +589,4 @@ void textEditor::filerReturnPath(const QString& path)
     fileView->refresh();
 }
 
-
-void textEditor::on_print_clicked()
-{
-    if(ui->mdiArea->subWindowList().empty())
-        return;
-
-    plaintext = qobject_cast<QPlainTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
-
-    QPrinter printer;
-    QPrintDialog dialog(&printer, this);
-
-    if(dialog.exec() == QDialog::Accepted)
-       plaintext->print(&printer);
-
-}
-
-
-void textEditor::on_showFiles_clicked()
-{
-    if(ui->dockWidget->isHidden())
-        ui->dockWidget->show();
-    else
-        ui->dockWidget->hide();
-}
 
