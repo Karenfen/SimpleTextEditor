@@ -12,6 +12,7 @@
 #include <QMdiSubWindow>
 #include <QToolBar>
 #include <QDesktopWidget>
+#include <QFontDialog>
 
 
 
@@ -76,10 +77,11 @@ textEditor::textEditor(QWidget *parent)
     m_actions["alig_C"] = new QAction(this);
     m_actions["alig_R"] = new  QAction(this);
     m_actions["select_AT"] = new  QAction(this);
+    m_actions["set_font"] = new  QAction(this);
 
 
     toolbar->addActions({m_actions.at("bar_save"), m_actions.at("bar_nfile"), m_actions.at("bar_print"), m_actions.at("bar_expl"), m_actions.at("copy_font"),
-                        m_actions.at("alig_L"), m_actions.at("alig_C"), m_actions.at("alig_R"), m_actions.at("select_AT")});
+                        m_actions.at("alig_L"), m_actions.at("alig_C"), m_actions.at("alig_R"), m_actions.at("select_AT"), m_actions.at("set_font")});
     toolbar->insertSeparator(m_actions.at("bar_expl"));
     toolbar->insertSeparator(m_actions.at("copy_font"));
 
@@ -118,6 +120,7 @@ textEditor::textEditor(QWidget *parent)
     connect(m_actions.at("alig_R"), &QAction::triggered, this, &textEditor::setTextAlignment);
 
     connect(m_actions.at("select_AT"), &QAction::triggered, this, &textEditor::selectAllText);
+    connect(m_actions.at("set_font"), &QAction::triggered, this, &textEditor::changeFont);
 
 // устанавливаем ивент-фильтры
     centralWidget()->installEventFilter(this);
@@ -279,11 +282,11 @@ void textEditor::copy_past_font()
 
     if(m_actions.at("copy_font")->isChecked())
     {
-        currentFont = plaintext->textCursor().charFormat();
+        currentCharFormat = plaintext->textCursor().charFormat();
     }
     else
     {
-        plaintext->textCursor().setCharFormat(currentFont);
+        plaintext->textCursor().setCharFormat(currentCharFormat);
     }
 }
 
@@ -306,6 +309,26 @@ void textEditor::selectAllText()
         return;
 
     plaintext->selectAll();
+}
+
+void textEditor::changeFont()
+{
+    if(!textEditIsValid())
+        return;
+
+    QTextCursor textCursore = plaintext->textCursor();
+    QTextCharFormat CharFormat = textCursore.charFormat();
+    bool ok{0};
+
+    QFont font = QFontDialog::getFont(&ok, CharFormat.font());
+
+    if(!ok)
+        return;
+
+    CharFormat.setFont(font);
+    textCursore.setCharFormat(CharFormat);
+    plaintext->setTextCursor(textCursore);
+
 }
 
 
@@ -488,6 +511,7 @@ void textEditor::setText()
     m_actions.at("alig_C")->setText(tr("выравнивание по центру"));
     m_actions.at("alig_R")->setText(tr("выравнивание по правому краю"));
     m_actions.at("select_AT")->setText(tr("выделить весь текс"));
+    m_actions.at("set_font")->setText(tr("выбор шрифта"));
 }
 
 void textEditor::personalization()
@@ -578,10 +602,12 @@ void textEditor::personalization()
     m_actions.at("alig_C")->setIcon(QPixmap(":/images/Text-align-center.ico"));
     m_actions.at("alig_R")->setIcon(QPixmap(":/images/Text-align-right.ico"));
     m_actions.at("select_AT")->setIcon(QPixmap(":/images/select-AT.ico"));
+    m_actions.at("set_font")->setIcon(QPixmap(":/images/Fonts.ico"));
 
     m_actions.at("alig_L")->setObjectName("alig_L");
     m_actions.at("alig_C")->setObjectName("alig_C");
     m_actions.at("alig_R")->setObjectName("alig_R");
+
 }
 
 QString textEditor::hoKeyList()

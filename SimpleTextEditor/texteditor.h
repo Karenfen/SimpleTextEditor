@@ -45,6 +45,7 @@ private slots:
     void copy_past_font();
     void setTextAlignment();
     void selectAllText();
+    void changeFont();
 
 private:
 
@@ -65,7 +66,7 @@ private:
     std::map<QString, int>hotKeys;
     std::map<QString, QAction*> m_actions;
 
-    QTextCharFormat currentFont;
+    QTextCharFormat currentCharFormat;
 
 private:
 
