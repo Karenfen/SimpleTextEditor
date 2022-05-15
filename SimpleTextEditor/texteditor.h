@@ -43,6 +43,8 @@ private slots:
     void on_pushButton_quickeSave_clicked();
     void on_showFiles_clicked();
     void copy_past_font();
+    void setTextAlignment();
+    void selectAllText();
 
 private:
 
@@ -68,6 +70,7 @@ private:
 private:
 
     QString hoKeyList();
+    bool textEditIsValid();
 
 public:
 

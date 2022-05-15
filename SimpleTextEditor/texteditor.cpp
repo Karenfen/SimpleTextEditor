@@ -11,6 +11,7 @@
 #include <QTextEdit>
 #include <QMdiSubWindow>
 #include <QToolBar>
+#include <QDesktopWidget>
 
 
 
@@ -71,8 +72,14 @@ textEditor::textEditor(QWidget *parent)
     m_actions["bar_print"] = new QAction(this);
     m_actions["bar_expl"] = new QAction(this);
     m_actions["copy_font"] = new QAction(this);
+    m_actions["alig_L"] = new QAction(this);
+    m_actions["alig_C"] = new QAction(this);
+    m_actions["alig_R"] = new  QAction(this);
+    m_actions["select_AT"] = new  QAction(this);
 
-    toolbar->addActions({m_actions.at("bar_save"), m_actions.at("bar_nfile"), m_actions.at("bar_print"), m_actions.at("bar_expl"), m_actions.at("copy_font")});
+
+    toolbar->addActions({m_actions.at("bar_save"), m_actions.at("bar_nfile"), m_actions.at("bar_print"), m_actions.at("bar_expl"), m_actions.at("copy_font"),
+                        m_actions.at("alig_L"), m_actions.at("alig_C"), m_actions.at("alig_R"), m_actions.at("select_AT")});
     toolbar->insertSeparator(m_actions.at("bar_expl"));
     toolbar->insertSeparator(m_actions.at("copy_font"));
 
@@ -104,7 +111,13 @@ textEditor::textEditor(QWidget *parent)
             });
     connect(m_actions.at("bar_print"), &QAction::triggered, this, &textEditor::on_print_clicked);
     connect(m_actions.at("bar_expl"), &QAction::triggered, this, &textEditor::on_showFiles_clicked);
-    connect(m_actions.at("copy_font"), &QAction::triggered, this, &textEditor::copy_past_font);
+    connect(m_actions.at("copy_font"), &QAction::toggled, this, &textEditor::copy_past_font);
+
+    connect(m_actions.at("alig_L"), &QAction::triggered, this, &textEditor::setTextAlignment);
+    connect(m_actions.at("alig_C"), &QAction::triggered, this, &textEditor::setTextAlignment);
+    connect(m_actions.at("alig_R"), &QAction::triggered, this, &textEditor::setTextAlignment);
+
+    connect(m_actions.at("select_AT"), &QAction::triggered, this, &textEditor::selectAllText);
 
 // устанавливаем ивент-фильтры
     centralWidget()->installEventFilter(this);
@@ -214,12 +227,7 @@ void textEditor::setTheme()
 // туллбар
 void textEditor::on_pushButton_save_clicked()
 {
-    if(ui->mdiArea->subWindowList().empty())
-        return;
-
-    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
-
-    if(!plaintext)
+    if(!textEditIsValid())
         return;
 
     if(plaintext->isReadOnly())
@@ -245,12 +253,7 @@ void textEditor::on_pushButton_save_clicked()
 
 void textEditor::on_print_clicked()
 {
-    if(ui->mdiArea->subWindowList().empty())
-        return;
-
-    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
-
-    if(!plaintext)
+    if(!textEditIsValid())
         return;
 
     QPrinter printer;
@@ -271,15 +274,10 @@ void textEditor::on_showFiles_clicked()
 
 void textEditor::copy_past_font()
 {
-    if(ui->mdiArea->subWindowList().empty())
+    if(!textEditIsValid())
         return;
 
-    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
-
-    if(!plaintext)
-        return;
-
-    if(!m_actions.at("copy_font")->isChecked())
+    if(m_actions.at("copy_font")->isChecked())
     {
         currentFont = plaintext->textCursor().charFormat();
     }
@@ -289,17 +287,33 @@ void textEditor::copy_past_font()
     }
 }
 
+void textEditor::setTextAlignment()
+{
+    if(!textEditIsValid())
+        return;
+
+    if(sender()->objectName() == "alig_L")
+        plaintext->setAlignment(Qt::AlignLeft);
+    else if(sender()->objectName() == "alig_C")
+        plaintext->setAlignment(Qt::AlignHCenter);
+    else if(sender()->objectName() == "alig_R")
+        plaintext->setAlignment(Qt::AlignRight);
+}
+
+void textEditor::selectAllText()
+{
+    if(!textEditIsValid())
+        return;
+
+    plaintext->selectAll();
+}
+
 
 
 // кнопки
 void textEditor::on_pushButton_quickeSave_clicked()
 {
-    if(ui->mdiArea->subWindowList().empty())
-        return;
-
-    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
-
-    if(!plaintext)
+    if(!textEditIsValid())
         return;
 
     if(plaintext->isReadOnly() | plaintext->windowTitle().isEmpty())
@@ -321,12 +335,7 @@ void textEditor::on_pushButton_quickeSave_clicked()
 
 void textEditor::on_pushButton_close_clicked()
 {
-    if(ui->mdiArea->subWindowList().empty())
-        return;
-
-    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
-
-    if(!plaintext)
+    if(!textEditIsValid())
         return;
 
     ui->mdiArea->closeActiveSubWindow();
@@ -475,6 +484,10 @@ void textEditor::setText()
     m_actions.at("bar_print")->setText(tr("печать документа"));
     m_actions.at("bar_expl")->setText(tr("открыть/закрыть проводник"));
     m_actions.at("copy_font")->setText(tr("форматирование по образцу"));
+    m_actions.at("alig_L")->setText(tr("выравнивание по левому краю"));
+    m_actions.at("alig_C")->setText(tr("выравнивание по центру"));
+    m_actions.at("alig_R")->setText(tr("выравнивание по правому краю"));
+    m_actions.at("select_AT")->setText(tr("выделить весь текс"));
 }
 
 void textEditor::personalization()
@@ -482,7 +495,20 @@ void textEditor::personalization()
     ui->dockWidget->setWidget(fileView.get());
     ui->mdiArea->addSubWindow(plaintext);
 
-    resize(860, 480);
+    QRect screen = QApplication::desktop()->screenGeometry();
+
+    if(screen.isValid())
+    {
+        screen.setHeight(screen.height() * 0.75);
+        screen.setWidth(screen.width() * 0.75);
+
+        setGeometry(screen);
+    }
+    else
+    {
+        resize(800, 600);
+    }
+
 
     setWindowIcon(QIcon(":/images/icon_cat.png"));
 
@@ -546,8 +572,16 @@ void textEditor::personalization()
     m_actions.at("bar_print")->setIcon(QPixmap(":/images/Print.ico"));
     m_actions.at("bar_expl")->setIcon(style()->standardIcon(QStyle::SP_DirIcon));
     m_actions.at("copy_font")->setIcon(style()->standardIcon(QStyle::SP_DialogResetButton));
-
     m_actions.at("copy_font")->setCheckable(true);
+
+    m_actions.at("alig_L")->setIcon(QPixmap(":/images/Text-align-left.ico"));
+    m_actions.at("alig_C")->setIcon(QPixmap(":/images/Text-align-center.ico"));
+    m_actions.at("alig_R")->setIcon(QPixmap(":/images/Text-align-right.ico"));
+    m_actions.at("select_AT")->setIcon(QPixmap(":/images/select-AT.ico"));
+
+    m_actions.at("alig_L")->setObjectName("alig_L");
+    m_actions.at("alig_C")->setObjectName("alig_C");
+    m_actions.at("alig_R")->setObjectName("alig_R");
 }
 
 QString textEditor::hoKeyList()
@@ -563,6 +597,19 @@ QString textEditor::hoKeyList()
     }
 
     return text;
+}
+
+bool textEditor::textEditIsValid()
+{
+    if(ui->mdiArea->subWindowList().empty())
+        return false;
+
+    plaintext = qobject_cast<QTextEdit*>(ui->mdiArea->activeSubWindow()->widget());
+
+    if(!plaintext)
+        return false;
+
+    return true;
 }
 
 
