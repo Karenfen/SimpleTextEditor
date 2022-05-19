@@ -4,18 +4,16 @@
 #include <QGraphicsScene>
 
 
-Gelement::Gelement(QGraphicsItem *parent) :
-     QGraphicsItem(parent)
-{
-    if(figure == RECTANGLE)
-        figure = ELLIPSE;
-    else if (figure == ELLIPSE)
-        figure = STAR;
-    else if(figure == STAR)
-        figure = RECTANGLE;
-//    figure = figure % 3;
-//    figure++;
 
+Gelement::Gelement(QGraphicsItem *parent) :
+     QGraphicsItem(parent), CurFigure(NextFigure)
+{
+    if(NextFigure == RECTANGLE)
+        NextFigure = ELLIPSE;
+    else if (NextFigure == ELLIPSE)
+        NextFigure = STAR;
+    else if(NextFigure == STAR)
+        NextFigure = RECTANGLE;
 
     setPos(0,0);
 
@@ -24,6 +22,8 @@ Gelement::Gelement(QGraphicsItem *parent) :
 
     w = 60;
     h = 40;
+
+    setAcceptDrops(true);
 }
 
 Gelement::~Gelement()
@@ -35,7 +35,7 @@ void Gelement::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 {
     painter->setBrush(brush);
 
-    switch (figure) {
+    switch (CurFigure) {
     case Figure::RECTANGLE :
     {
         painter->drawRect(x(), y(), w, h);
@@ -48,7 +48,7 @@ void Gelement::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     }
     case Figure::STAR :
     {
-        painter->drawText(x(), y(), "star");
+        painter->drawPolygon(star(pos()));
         break;
     }
     }
@@ -74,6 +74,23 @@ int Gelement::height()
     return h;
 }
 
+QPolygonF Gelement::star(QPointF pos)
+{
+    QPolygonF star;
+    star << QPoint(pos.rx()+ w/2, pos.ry())
+         << QPoint(pos.rx() + w/2 +h*0.19, pos.ry()+h*0.32)
+         << QPoint(pos.rx()+w/2+h*0.53, pos.ry()+h*0.39)
+         << QPoint(pos.rx()+w/2+h*0.29, pos.ry()+h*0.64)
+         << QPoint(pos.rx()+w/2+h*0.36, pos.ry()+h)
+         << QPoint(pos.rx()+ w/2, pos.ry()+h*0.86)
+         << QPoint(pos.rx()+ w/2-h*0.36, pos.ry()+h)
+         << QPoint(pos.rx()+ w/2-h*0.29, pos.ry()+h*0.64)
+         << QPoint(pos.rx()+ w/2-h*0.56, pos.ry()+h*0.39)
+         << QPoint(pos.rx()+ w/2-h*0.19, pos.ry()+h*0.32);
+
+    return star;
+}
+
 
 QRectF Gelement::boundingRect() const
 {
@@ -88,4 +105,33 @@ void Gelement::mousePressEvent(QGraphicsSceneMouseEvent *event)
         scene()->removeItem(this);
 
     prepareGeometryChange();
+}
+
+void Gelement::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    QPointF Npos = mapToScene(event->pos());
+    QPointF Cpos = pos();
+
+    Npos.setX(Npos.x() - width()/2);
+    Npos.setY(Npos.y() - height()/2);
+    Npos /= 2;
+
+    setPos(Npos);
+
+    if(!collidingItems().empty())
+        setPos(Cpos);
+
+
+//void Gelement::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+//{
+////    event->setDropAction(Qt::MoveAction);
+////    event->accept();
+//    event->acceptProposedAction();
+//}
+
+//void Gelement::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+//{
+////    event->setDropAction(Qt::MoveAction);
+////    event->accept();
+//    event->acceptProposedAction();
 }

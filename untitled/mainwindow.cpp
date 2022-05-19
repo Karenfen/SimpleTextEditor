@@ -7,7 +7,7 @@
 #include <QScreen>
 #include <QGraphicsRectItem>
 
-Figure Gelement::figure = STAR;
+Figure Gelement::NextFigure = RECTANGLE;
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     //setAlignment(Qt::AlignLeft | Qt::AlignTop);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setRenderHint(QPainter::HighQualityAntialiasing);
+    setRenderHint(QPainter::Antialiasing);
 }
 
 MainWindow::~MainWindow()
@@ -41,15 +41,19 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
     if(event->button() == Qt::LeftButton)
     {
-        //Gscene->addRect(event->x(), event->y(), 50, 40, QPen(Qt::PenStyle::SolidLine), getBrush());
-        //QGraphicsEllipseItem* elips = new QGraphicsEllipseItem(event->x(), event->y(), 50, 40);
-        //elips->setBrush(getBrush());
-        auto* elips = new Gelement;
-        elips->setPos(event->x()/2 - elips->width()/4, event->y()/2 - elips->height()/4);
-        gscene->addItem(elips);
-        //update();
+        QGraphicsRectItem item(0,0,60,40);
+        item.setPos(event->x() - item.rect().width()/2, event->y() - item.rect().height()/2);
+
+        if(gscene->collidingItems(&item).empty())
+        {
+            auto gitem = new Gelement;
+            gitem->setPos(item.pos()/2);
+            gscene->addItem(gitem);
+
+        }
     }
 
+    QGraphicsView::mousePressEvent(event);
 }
 
 //void MainWindow::resizeEvent(QResizeEvent *event)

@@ -21,15 +21,22 @@ public:
     int width();
     int height();
 
+private:
+    QPolygonF star(QPointF pos);
+
 protected:
     QRectF boundingRect() const override;
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+//    void dragEnterEvent(QGraphicsSceneDragDropEvent *event) override;
+//    void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
     QBrush brush;
     int h;
     int w;
-    static Figure figure;
+    static Figure NextFigure;
+    const Figure CurFigure;
 
 
 signals:
