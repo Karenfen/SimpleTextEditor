@@ -24,9 +24,9 @@ MainWindow::MainWindow(QWidget *parent)
     setFixedSize(Wsize);
     gscene->setSceneRect(this->rect());
 
-    //setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setAlignment(Qt::AlignLeft | Qt::AlignTop);
+//    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setRenderHint(QPainter::Antialiasing);
 }
 
@@ -56,9 +56,33 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     QGraphicsView::mousePressEvent(event);
 }
 
+void MainWindow::wheelEvent(QWheelEvent *event)
+{
+    qreal point = event->angleDelta().ry();
+
+
+    point /= 100;
+    if(point < 0)
+        point = (-1/point);
+
+    scale(point, point);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Minus)
+    {
+        scale(0.9, 0.9);
+    }
+    else if (event->key() == Qt::Key_Plus)
+    {
+        scale(1.1, 1.1);
+    }
+}
+
 //void MainWindow::resizeEvent(QResizeEvent *event)
 //{
-//    gscene->setSceneRect(rect());
+//    //gscene->setSceneRect(rect());
 //    fitInView(sceneRect());
 //    QGraphicsView::resizeEvent(event);
 //}

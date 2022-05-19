@@ -23,6 +23,9 @@ Gelement::Gelement(QGraphicsItem *parent) :
     w = 60;
     h = 40;
 
+    wheelPressed = false;
+    moving = false;
+
     setAcceptDrops(true);
 }
 
@@ -99,28 +102,51 @@ QRectF Gelement::boundingRect() const
 
 void Gelement::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton)
-        setBrush();
-    else if(event->button() == Qt::RightButton)
-        scene()->removeItem(this);
 
-    prepareGeometryChange();
+    if(event->button() == Qt::RightButton)
+        scene()->removeItem(this);
+    else if(event->button() == Qt::MiddleButton)
+        wheelPressed = true;
+
+}
+
+void Gelement::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton)
+    {
+        if(!moving)
+        {
+            setBrush();
+            prepareGeometryChange();
+        }
+        moving = false;
+    }
+    else if(event->button() == Qt::MiddleButton)
+        wheelPressed = false;
 }
 
 void Gelement::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    QPointF Npos = mapToScene(event->pos());
-    QPointF Cpos = pos();
+    if(!wheelPressed)
+    {
+        moving = true;
+        QPointF Npos = mapToScene( event->pos());
+        QPointF Cpos = pos();
 
-    Npos.setX(Npos.x() - width()/2);
-    Npos.setY(Npos.y() - height()/2);
-    Npos /= 2;
+        Npos.setX(Npos.x() - width()/2);
+        Npos.setY(Npos.y() - height()/2);
+        Npos /= 2;
 
-    setPos(Npos);
+        setPos(Npos);
 
-    if(!collidingItems().empty())
-        setPos(Cpos);
-
+        if(!collidingItems().empty())
+            setPos(Cpos);
+    }
+    else
+    {
+        setTransformOriginPoint(x()+w/2,y()+h/2);
+        setRotation(rotation()+1);
+    }
 
 //void Gelement::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 //{
@@ -133,5 +159,6 @@ void Gelement::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 //{
 ////    event->setDropAction(Qt::MoveAction);
 ////    event->accept();
-//    event->acceptProposedAction();
+    //    event->acceptProposedAction();
 }
+

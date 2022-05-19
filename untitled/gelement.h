@@ -27,9 +27,11 @@ private:
 protected:
     QRectF boundingRect() const override;
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 //    void dragEnterEvent(QGraphicsSceneDragDropEvent *event) override;
 //    void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+//    void wheelEvent(QGraphicsSceneWheelEvent *event) override;
 
 private:
     QBrush brush;
@@ -37,6 +39,8 @@ private:
     int w;
     static Figure NextFigure;
     const Figure CurFigure;
+    bool wheelPressed;
+    bool moving;
 
 
 signals:
