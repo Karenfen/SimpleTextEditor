@@ -46,6 +46,7 @@ private slots:
     void setTextAlignment();
     void selectAllText();
     void changeFont();
+    void enserDateTime();
 
 private:
 

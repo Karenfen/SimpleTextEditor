@@ -13,6 +13,7 @@
 #include <QToolBar>
 #include <QDesktopWidget>
 #include <QFontDialog>
+#include <QDateTime>
 
 
 
@@ -66,7 +67,7 @@ textEditor::textEditor(QWidget *parent)
     ui->menubar->addAction(m_actions.at("help"));
 
 // добавляем tool-bar
-    QToolBar* toolbar = new QToolBar{};
+    QToolBar* toolbar = new QToolBar(this);
 
     m_actions["bar_save"] = new QAction(this);
     m_actions["bar_nfile"] =new QAction(this);
@@ -79,11 +80,17 @@ textEditor::textEditor(QWidget *parent)
     m_actions["select_AT"] = new  QAction(this);
     m_actions["set_font"] = new  QAction(this);
 
+    m_actions["date"] = new QAction(this);
+    m_actions["time"] = new QAction(this);
+    m_actions["date_time"] = new QAction(this);
+
 
     toolbar->addActions({m_actions.at("bar_save"), m_actions.at("bar_nfile"), m_actions.at("bar_print"), m_actions.at("bar_expl"), m_actions.at("copy_font"),
-                        m_actions.at("alig_L"), m_actions.at("alig_C"), m_actions.at("alig_R"), m_actions.at("select_AT"), m_actions.at("set_font")});
+                        m_actions.at("alig_L"), m_actions.at("alig_C"), m_actions.at("alig_R"), m_actions.at("select_AT"), m_actions.at("set_font"),
+                        m_actions.at("date_time"), m_actions.at("date"), m_actions.at("time")});
     toolbar->insertSeparator(m_actions.at("bar_expl"));
     toolbar->insertSeparator(m_actions.at("copy_font"));
+    toolbar->insertSeparator(m_actions.at("date_time"));
 
     addToolBar(toolbar);
 
@@ -121,6 +128,10 @@ textEditor::textEditor(QWidget *parent)
 
     connect(m_actions.at("select_AT"), &QAction::triggered, this, &textEditor::selectAllText);
     connect(m_actions.at("set_font"), &QAction::triggered, this, &textEditor::changeFont);
+
+    connect(m_actions.at("date"), &QAction::triggered, this, &textEditor::enserDateTime);
+    connect(m_actions.at("time"), &QAction::triggered, this, &textEditor::enserDateTime);
+    connect(m_actions.at("date_time"), &QAction::triggered, this, &textEditor::enserDateTime);
 
 // устанавливаем ивент-фильтры
     centralWidget()->installEventFilter(this);
@@ -331,6 +342,26 @@ void textEditor::changeFont()
 
 }
 
+void textEditor::enserDateTime()
+{
+    if(!textEditIsValid())
+        return;
+    if(plaintext->isReadOnly())
+        return;
+    if(sender()->objectName() == "date")
+    {
+        plaintext->textCursor().insertText(QDate::currentDate().toString());
+    }
+    else if(sender()->objectName() == "time")
+    {
+        plaintext->textCursor().insertText(QTime::currentTime().toString());
+    }
+    else if(sender()->objectName() == "date_time")
+    {
+        plaintext->textCursor().insertText(QDateTime::currentDateTime().toString());
+    }
+}
+
 
 
 // кнопки
@@ -512,6 +543,10 @@ void textEditor::setText()
     m_actions.at("alig_R")->setText(tr("выравнивание по правому краю"));
     m_actions.at("select_AT")->setText(tr("выделить весь текс"));
     m_actions.at("set_font")->setText(tr("выбор шрифта"));
+    m_actions.at("date")->setText(tr("вставить дату"));
+    m_actions.at("time")->setText(tr("вставить время"));
+    m_actions.at("date_time")->setText(tr("вставить дату и время"));
+
 }
 
 void textEditor::personalization()
@@ -607,6 +642,14 @@ void textEditor::personalization()
     m_actions.at("alig_L")->setObjectName("alig_L");
     m_actions.at("alig_C")->setObjectName("alig_C");
     m_actions.at("alig_R")->setObjectName("alig_R");
+
+    m_actions.at("date")->setIcon(QPixmap(":/images/date.ico"));
+    m_actions.at("time")->setIcon(QPixmap(":/images/time.ico"));
+    m_actions.at("date_time")->setIcon(QPixmap(":/images/date_time.ico"));
+
+    m_actions.at("date")->setObjectName("date");
+    m_actions.at("time")->setObjectName("time");
+    m_actions.at("date_time")->setObjectName("date_time");
 
 }
 
