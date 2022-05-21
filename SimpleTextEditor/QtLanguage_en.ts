@@ -191,6 +191,61 @@
     </message>
 </context>
 <context>
+    <name>mBar</name>
+    <message>
+        <source>сохранить как...</source>
+        <translation type="vanished">save as...</translation>
+    </message>
+    <message>
+        <source>создать новый файл</source>
+        <translation type="vanished">create new file</translation>
+    </message>
+    <message>
+        <source>печать документа</source>
+        <translation type="vanished">print file</translation>
+    </message>
+    <message>
+        <source>открыть/закрыть проводник</source>
+        <translation type="vanished">open / close file explorer</translation>
+    </message>
+    <message>
+        <source>форматирование по образцу</source>
+        <translation type="vanished">formatting text according to the sample</translation>
+    </message>
+    <message>
+        <source>выравнивание по левому краю</source>
+        <translation type="vanished">left alignment</translation>
+    </message>
+    <message>
+        <source>выравнивание по центру</source>
+        <translation type="vanished">center alignment</translation>
+    </message>
+    <message>
+        <source>выравнивание по правому краю</source>
+        <translation type="vanished">right alignment</translation>
+    </message>
+    <message>
+        <source>выделить весь текс</source>
+        <translation type="vanished">select all text</translation>
+    </message>
+    <message>
+        <source>выбор шрифта</source>
+        <translation type="vanished">font selection</translation>
+    </message>
+    <message>
+        <source>вставить дату</source>
+        <translation type="vanished">ensert date</translation>
+    </message>
+    <message>
+        <source>вставить время</source>
+        <translation type="vanished">ensert time</translation>
+    </message>
+    <message>
+        <source>вставить дату и время</source>
+        <translation type="vanished">ensert date/time</translation>
+    </message>
+</context>
+<context>
     <name>textEditor</name>
     <message>
         <location filename="texteditor.ui" line="43"/>
