@@ -9,5 +9,10 @@
         <file>themes/light_teme.css</file>
         <file>images/Print.ico</file>
         <file>images/icon_cat.png</file>
+        <file>images/Text-align-center.ico</file>
+        <file>images/Text-align-left.ico</file>
+        <file>images/Text-align-right.ico</file>
+        <file>images/select-AT.ico</file>
+        <file>images/Fonts.ico</file>
     </qresource>
 </RCC>
