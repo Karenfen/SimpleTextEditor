@@ -3,27 +3,31 @@
 
 #include <QObject>
 #include <QDir>
-#include <QThread>
+#include <QThreadPool>
 #include <QListWidget>
+#include <QRunnable>
 
 
 class Finder : public QObject
 {
     Q_OBJECT
 public:
-    explicit Finder(QObject *parent = nullptr);
+    explicit Finder(const QString& name, const QString& path, QObject* parent = nullptr);
+    void doSearch();
 
 private:
     void searchInDir(const QString& dir);
 
 public slots:
-    void doSearch(const QString& fileName);
+    void setCansel();
 
 signals:
     void foundFile(QString, QString);
 
 private:
     QString fileName;
+    QString homePath;
+    bool cansel;
 
 };
 
@@ -40,12 +44,27 @@ public slots:
     void foundFile(const QString& fileName, const QString& filePath);
 
 signals:
-    void findFile(QString);
     void sendResult(QString, QString);
+    void canselThreads();
 
 private:
-    QThread finderThread;
+    QThreadPool* pool;
 
+};
+
+
+
+
+class runwork : public QRunnable
+{
+public:
+    runwork(const QString& fileName, const QString& homePath);
+    void run() override;
+    ~runwork();
+    Finder *worker();
+
+private:
+    Finder* obj_work;
 };
 
 

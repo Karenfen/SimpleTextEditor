@@ -9,6 +9,9 @@
 #include <memory>
 
 
+class searchResults;
+
+
 class filer : public QWidget
 {
     Q_OBJECT
@@ -36,9 +39,21 @@ private slots:
 private:
     std::unique_ptr<Ui_Form> ui;
     std::unique_ptr<QFileSystemModel> m_model;
-    QListWidget* list;
-    Controller* threadControl;
+    searchResults* list;
+    Controller threadControl;
 
+};
+
+
+class searchResults : public QListWidget
+{
+    Q_OBJECT
+
+protected:
+    void closeEvent(QCloseEvent* event) override;
+
+signals:
+    void closed();
 };
 
 #endif // FILER_H

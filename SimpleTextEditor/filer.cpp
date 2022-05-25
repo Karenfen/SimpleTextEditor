@@ -6,7 +6,7 @@
 
 
 filer::filer(QWidget *parent, const QString& filter) :
-    QWidget(parent), ui(new Ui_Form), m_model(new QFileSystemModel), list(nullptr), threadControl(nullptr)
+    QWidget(parent), ui(new Ui_Form), m_model(new QFileSystemModel), list(nullptr)
 {
     ui->setupUi(this);
 
@@ -24,7 +24,6 @@ filer::filer(QWidget *parent, const QString& filter) :
     setWindowTitle(tr("Проводник"));
 
     connect(ui->treeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &filer::selectionChanged);
-    //connect(list, &QWidget::close, threadControl, &QThread::quit);
 }
 
 filer::~filer()
@@ -89,27 +88,18 @@ void filer::on_search_clicked()
         delete list;
     }
 
-    list = new QListWidget();
+    list = new searchResults();
     list->setWindowModality(Qt::ApplicationModal);
     list->resize(this->size());
+    list->setWindowTitle(tr("поиск..."));
+    list->setWindowIcon(windowIcon());
     list->show();
 
-    connect(list, &QListWidget::itemDoubleClicked, this, &filer::selectFile);
+    connect(list, &searchResults::itemDoubleClicked, this, &filer::selectFile);
+    connect(&threadControl, &Controller::sendResult, this, &filer::addResult);
+    connect(list, &searchResults::closed, &threadControl, &Controller::canselThreads);
 
-    threadControl = new Controller(list);
-
-    connect(threadControl, &Controller::sendResult, this, &filer::addResult);
-
-    if(QSysInfo::productType() == "windows")
-    {
-
-    }
-    else
-    {
-
-    }
-
-    threadControl->start(ui->fileName->text());
+    threadControl.start(ui->fileName->text());
 
 }
 
@@ -127,7 +117,15 @@ void filer::addResult(const QString& fileName, const QString& filePath)
 void filer::selectFile(QListWidgetItem* item)
 {
     emit fileSelected(item->toolTip());
+    list->close();
     list->deleteLater();
     list = nullptr;
 }
 
+
+void searchResults::closeEvent(QCloseEvent *event)
+{
+    emit closed();
+
+    QListWidget::closeEvent(event);
+}
