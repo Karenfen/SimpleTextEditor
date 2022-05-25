@@ -702,7 +702,6 @@ void textEditor::filerReturnPath(const QString& path)
         plaintext->setWindowTitle(path);
     }
 
-    fileView->refresh();
 }
 
 

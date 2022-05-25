@@ -1,15 +1,19 @@
 #include "filer.h"
 #include <QClipboard>
+#include <QAbstractItemModel>
+#include <QAction>
+
 
 
 filer::filer(QWidget *parent, const QString& filter) :
-    QWidget(parent), ui(new Ui_Form), m_model(new QDirModel)
+    QWidget(parent), ui(new Ui_Form), m_model(new QFileSystemModel), list(nullptr), threadControl(nullptr)
 {
     ui->setupUi(this);
 
     ui->comboBoxType->addItem(filter);
     ui->comboBoxType->setItemText(0, filter);
 
+    m_model->setRootPath(QDir::homePath());
     ui->treeView->setModel(m_model.get());
 
     ui->treeView->setColumnWidth(0, 300);
@@ -20,17 +24,13 @@ filer::filer(QWidget *parent, const QString& filter) :
     setWindowTitle(tr("Проводник"));
 
     connect(ui->treeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &filer::selectionChanged);
+    //connect(list, &QWidget::close, threadControl, &QThread::quit);
 }
 
 filer::~filer()
 {
-
-}
-
-
-void filer::refresh()
-{
-    m_model->refresh();
+    list->close();
+    delete list;
 }
 
 
@@ -77,5 +77,57 @@ void filer::on_copyPath_clicked()
 {
     QClipboard* clipboard = qApp->clipboard();
     clipboard->setText(ui->currentPath->text());
+}
+
+void filer::on_search_clicked()
+{
+    if(ui->fileName->text().isEmpty())
+        return;
+
+    if(list)
+    {
+        delete list;
+    }
+
+    list = new QListWidget();
+    list->setWindowModality(Qt::ApplicationModal);
+    list->resize(this->size());
+    list->show();
+
+    connect(list, &QListWidget::itemDoubleClicked, this, &filer::selectFile);
+
+    threadControl = new Controller(list);
+
+    connect(threadControl, &Controller::sendResult, this, &filer::addResult);
+
+    if(QSysInfo::productType() == "windows")
+    {
+
+    }
+    else
+    {
+
+    }
+
+    threadControl->start(ui->fileName->text());
+
+}
+
+void filer::addResult(const QString& fileName, const QString& filePath)
+{
+    if(list != nullptr)
+    {
+        QListWidgetItem* item = new QListWidgetItem(list);
+        item->setText(fileName);
+        item->setToolTip(filePath);
+        list->addItem(item);
+    }
+}
+
+void filer::selectFile(QListWidgetItem* item)
+{
+    emit fileSelected(item->toolTip());
+    list->deleteLater();
+    list = nullptr;
 }
 

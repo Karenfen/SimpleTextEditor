@@ -17,5 +17,6 @@
         <file>images/date.ico</file>
         <file>images/date_time.ico</file>
         <file>images/time.ico</file>
+        <file>images/Search.ico</file>
     </qresource>
 </RCC>
