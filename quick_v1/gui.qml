@@ -1,8 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
-import com.FileRW 1.0
-
 
 
 Rectangle {
@@ -13,6 +11,7 @@ Rectangle {
     border.width: 5
     border.color: "#c2e9fb"
     visible: true
+
 
     Rectangle{
         id: taskPlain
@@ -106,49 +105,23 @@ Rectangle {
         font.bold: true
     }
 
-    Button{
-        signal createdTask(string task, string date, string status)
+      MyButton{
+          signal createdTask(string task, string date, string status)
 
-        id: addTask
-        objectName: "addButton"
-        anchors.top: taskPlain.bottom
-        anchors.bottom: dateRec.bottom
-        anchors.left: dateRec.right
-        anchors.right: progress.left
-        text: qsTr("Добавить")
-        font.pixelSize: height/2
+          id: addTask
+          anchors.top: taskPlain.bottom
+          anchors.bottom: dateRec.bottom
+          anchors.left: dateRec.right
+          anchors.right: progress.left
 
-        contentItem: Text {
-            text: addTask.text
-            font: addTask.font
-            color: addTask.down ? "white" : "black"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
+          onClicked: {
+              if(taskText.text.length){
+                  createdTask(taskText.text, date.text, progress.value.toString())
+                  taskText.clear()
+                  date.text = new Date().toLocaleDateString("dd.MM.yyyy")
+                  progress.value = 0
+              }
+          }
 
-        background: Rectangle {
-            width: parent.width
-            height: parent.height
-            gradient: Gradient{
-                GradientStop { position: 0.0; color: "#84fab0" }
-                GradientStop { position: 1.1; color: "#8fd3f4" }
-            }
-        }
-
-        onClicked: {
-            if(taskText.text.length){
-                createdTask(taskText.text, date.text, progress.value.toString())
-                taskText.clear()
-                date.text = new Date().toLocaleDateString("dd.MM.yyyy")
-                progress.value = 0
-            }
-        }
-
-    }
-
-FileRW{
-    id: file
-}
-
+      }
 }
