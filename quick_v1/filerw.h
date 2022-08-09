@@ -14,6 +14,7 @@ public:
     ~FileRW();
     Q_INVOKABLE QList<QStringList> read();
     Q_INVOKABLE void write(const QStringList& data);
+    void clear();
 
 private:
     QFile* file;

@@ -80,3 +80,12 @@ void FileRW::write(const QStringList& data)
     file->close();
 }
 
+void FileRW::clear()
+{
+    if(!file)
+        return;
+
+    if(file->open(QFile::WriteOnly))
+        file->close();
+}
+

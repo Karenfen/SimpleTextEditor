@@ -37,6 +37,7 @@ Rectangle {
 
             TextEdit {
                 id: taskText
+                objectName: "textPlane"
                 x: taskPlain.x + widget.border.width
                 y: taskPlain.y + widget.border.width
                 width: taskPlain.width - widget.border.width*2
