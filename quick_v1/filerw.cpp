@@ -18,13 +18,14 @@ FileRW::~FileRW()
 
 QList<QStringList> FileRW::read()
 {
-    QList<QStringList>data{};
+    if(!cache.isEmpty())
+        return cache;
 
     if(!file)
-        return data;
+        return cache;
 
     if(!file->open(QFile::ReadOnly))
-        return data;
+        return cache;
 
     while (!file->atEnd())
     {
@@ -45,12 +46,12 @@ QList<QStringList> FileRW::read()
             taskData.append(QString(byteData));
         }
 
-        data.append(taskData);
+        cache.append(taskData);
     }
 
     file->close();
 
-    return data;
+    return cache;
 }
 
 
@@ -78,5 +79,7 @@ void FileRW::write(const QStringList& data)
     }
 
     file->close();
+
+    cache.append(data);
 }
 
