@@ -18,7 +18,7 @@ public:
 
 private:
     QFile* file;
-
+    QList<QStringList> cache{};
 };
 
 
