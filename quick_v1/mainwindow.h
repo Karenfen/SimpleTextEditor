@@ -4,7 +4,14 @@
 #include <QWidget>
 #include <QQuickWidget>
 #include <QStandardItemModel>
-#include "filerw.h"
+#include <QTableView>
+#include <QSqlTableModel>
+#include <QSqlQuery>
+#include <QLabel>
+
+
+
+
 
 
 class Task
@@ -34,20 +41,15 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private:
-    void loadTask();
-
 public slots:
     void newTask(const QString &text, const QString &date, const QString &progress);
 
-signals:
-    void loadedTask(Task task);
-
 private:
-    FileRW RW;
-    QQuickWidget* quickeWidget;
-    QList<Task> taskList;
-    QStandardItemModel* tasksModel;
+    QQuickWidget* quickeWidget{};
+    QTableView* taskList{};
+    QSqlTableModel* model_{};
+    QSqlQuery* query{};
+    QLabel* countTasks{};
 
 };
 #endif // MAINWINDOW_H

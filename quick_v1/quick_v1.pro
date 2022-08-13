@@ -1,7 +1,8 @@
 QT       += core \
             gui \
             quickwidgets \
-            quick
+            quick \
+            sql
 
 # greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -12,12 +13,10 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    filerw.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
-    filerw.h \
     mainwindow.h
 
     # Additional import path used to resolve QML modules in Qt Creator's code model
