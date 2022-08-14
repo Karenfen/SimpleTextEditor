@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
 // создаём таблицу в БД
     query = new QSqlQuery{dataBase_};
 
-    if(!query->exec("create table if not exists tasks (id integer primary key, date text no null, task text no null, progress integer no null)"))
+    if(!query->exec("create table if not exists tasks (id integer primary key, date text not null, task text not null, progress integer not null)"))
         qDebug() << "Ошибка создания таблици в базе данных" << query->lastError();
 
 
