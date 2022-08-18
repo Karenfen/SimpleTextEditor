@@ -60,27 +60,28 @@ Controller::~Controller()
 
 void Controller::start(const QString &file)
 {
-    if(QSysInfo::productType() == "windows")
-    {
-        QFileInfoList drives = QDir::drives();
+#ifdef Q_OS_WIN
 
-        for(auto drive : drives)
-        {
-            runwork* workerRuner = new runwork(file, drive.filePath());
-            pool->start(workerRuner, QThread::HighPriority);
+    QFileInfoList drives = QDir::drives();
 
-            connect(workerRuner->worker(), &Finder::foundFile, this, &Controller::foundFile);
-            connect(this, &Controller::canselThreads, workerRuner->worker(), &Finder::setCansel);
-        }
-    }
-    else
+    for(auto drive : drives)
     {
-        runwork* workerRuner = new runwork(file, "/");
+        runwork* workerRuner = new runwork(file, drive.filePath());
         pool->start(workerRuner, QThread::HighPriority);
 
         connect(workerRuner->worker(), &Finder::foundFile, this, &Controller::foundFile);
         connect(this, &Controller::canselThreads, workerRuner->worker(), &Finder::setCansel);
     }
+
+#else
+
+    runwork* workerRuner = new runwork(file, "/");
+    pool->start(workerRuner, QThread::HighPriority);
+
+    connect(workerRuner->worker(), &Finder::foundFile, this, &Controller::foundFile);
+    connect(this, &Controller::canselThreads, workerRuner->worker(), &Finder::setCansel);
+
+#endif
 }
 
 
