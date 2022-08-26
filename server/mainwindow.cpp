@@ -110,6 +110,7 @@ void MainWindow::startServer()
             QMessageBox::critical(this, tr("Ошибка сокета!"), tr("Ошибка открытия UDP сокета! Приложение будет закрыто."));
             qApp->exit();
         }
+
         if(!UDPsocket->bind(QHostAddress::LocalHost, _PORT_))
         {
             QMessageBox::critical(this, tr("Ошибка сети!"), tr("Ошибка соединения по протоколу UDP! Приложение будет закрыто."));
